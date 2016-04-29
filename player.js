@@ -17,7 +17,7 @@ window.customMessageBus.onMessage = function(event) {
   console.log("Message from: " + senderId + " Message: " + message);
   switch (message[0]) {
     case "requestAd":
-      requestAd(message[1]);
+      requestAd(message[1], message[2]);
       return;
     case "seek":
       seek(parseFloat(message[1]));
@@ -61,9 +61,13 @@ function initIMA() {
 function onAdsManagerLoaded(adsManagerLoadedEvent) {
   console.log('onAdsManagerLoaded');
   broadcast('onAdsManagerLoaded');
+  var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+  if (currentContentTime != 0) {
+    adsRenderingSettings.playAdsAfterTime = currentContentTime;
+  }
   // Get the ads manager.
   adsManager = adsManagerLoadedEvent.getAdsManager(
-      window.mediaElement);  // should be set to the content video element
+    window.mediaElement, adsRenderingSettings);
 
   // Add listeners to the required events.
   adsManager.addEventListener(
@@ -84,20 +88,15 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
     adsManager.start();
     origOnEnded = window.mediaManager.onEnded.bind(window.mediaManager);
     origOnSeek = window.mediaManager.onSeek.bind(window.mediaManager);
-
-    if (discardAdBreak != -1) {
-      adsManager.discardAdBreak();
-      currentContentTime = discardAdBreak;
-      discardAdBreak = -1;
-    }
   } catch (adError) {
     // An error may be thrown if there was a problem with the VAST response.
     broadcast("Ads Manager Error: " + adError);
   }
 }
 
-function requestAd(adTag) {
+function requestAd(adTag, currentTime) {
   console.log('requestAd');
+  currentContentTime = currentTime;
   var adsRequest = new google.ima.AdsRequest();
   adsRequest.adTagUrl = adTag;
   adsRequest.linearAdSlotWidth = window.mediaElement.width;
