@@ -7,7 +7,7 @@ window.customMessageBus = window.castReceiverManager.getCastMessageBus(namespace
 window.castReceiverManager.start();
 
 window.castReceiverManager.onSenderDisconnected = function() {
-  broadcast("seek," + currentContentTime);
+  //broadcast("seek," + currentContentTime);
   window.close();
 }
 
@@ -105,7 +105,7 @@ function requestAd(adTag, currentTime) {
   adsRequest.nonLinearAdSlotHeight = window.mediaElement.height / 3;
   adsLoader.requestAds(adsRequest);
   if (currentTime != 0) {
-    window.mediaElement.play();
+    seek(currentTime);
   }
 }
 
