@@ -104,6 +104,9 @@ function requestAd(adTag, currentTime) {
   adsRequest.nonLinearAdSlotWidth = window.mediaElement.width;
   adsRequest.nonLinearAdSlotHeight = window.mediaElement.height / 3;
   adsLoader.requestAds(adsRequest);
+  if (currentTime != 0) {
+    window.mediaElement.play();
+  }
 }
 
 function seek(time) {
