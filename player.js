@@ -98,7 +98,7 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
       onContentResumeRequested);
 
   try {
-    adsManager.init(window.width, window.height, google.ima.ViewMode.NORMAL);
+    adsManager.init(window.mediaElement.width, window.mediaElement.height, google.ima.ViewMode.FULLSCREEN);
     adsManager.start();
     origOnEnded = window.mediaManager.onEnded.bind(window.mediaManager);
     origOnSeek = window.mediaManager.onSeek.bind(window.mediaManager);
