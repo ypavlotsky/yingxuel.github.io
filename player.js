@@ -7,14 +7,12 @@ window.customMessageBus = window.castReceiverManager.getCastMessageBus(namespace
 window.castReceiverManager.start();
 
 window.castReceiverManager.onSenderDisconnected = function() {
-  //broadcast("seek," + currentContentTime);
   window.close();
 }
 
 window.customMessageBus.onMessage = function(event) {
   var message = event.data.split(',');
   var senderId = event.senderId;
-  console.log("Message from: " + senderId + " Message: " + message);
   switch (message[0]) {
     case "requestAd":
       requestAd(message[1], message[2]);
@@ -33,8 +31,6 @@ var origOnLoad = window.mediaManager.onLoad.bind(window.mediaManager);
 var origOnLoadEvent;
 
 window.mediaManager.onLoad = function(event) {
-  console.log('onLoad');
-  broadcast('onLoad');
   origOnLoadEvent = event;
   window.splashImg.style.display = 'none';
   window.mediaElement.style.display = 'block';
@@ -49,7 +45,6 @@ var currentContentTime = 0;
 var discardAdBreak = -1;
 
 function initIMA() {
-  console.log('initIma');
   adDisplayContainer = new google.ima.AdDisplayContainer(document.getElementById('adContainer'), window.mediaElement);
   adDisplayContainer.initialize();
   adsLoader = new google.ima.AdsLoader(adDisplayContainer);
@@ -81,10 +76,7 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
       onContentResumeRequested);
 
   try {
-    // Initialize the ads manager. Ad rules playlist will start at this time.
     adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
-    // Call play to start showing the ad. Single video and overlay ads will
-    // start at this time; the call will be ignored for ad rules.
     adsManager.start();
     origOnEnded = window.mediaManager.onEnded.bind(window.mediaManager);
     origOnSeek = window.mediaManager.onSeek.bind(window.mediaManager);
@@ -95,8 +87,10 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
 }
 
 function requestAd(adTag, currentTime) {
-  console.log('requestAd');
-  currentContentTime = currentTime;
+  if (currentTime != 0) {
+    //seek(currentTime);
+    currentContentTime = currentTime;
+  }
   var adsRequest = new google.ima.AdsRequest();
   adsRequest.adTagUrl = adTag;
   adsRequest.linearAdSlotWidth = window.mediaElement.width;
@@ -104,9 +98,6 @@ function requestAd(adTag, currentTime) {
   adsRequest.nonLinearAdSlotWidth = window.mediaElement.width;
   adsRequest.nonLinearAdSlotHeight = window.mediaElement.height / 3;
   adsLoader.requestAds(adsRequest);
-  if (currentTime != 0) {
-    seek(currentTime);
-  }
 }
 
 function seek(time) {
@@ -126,7 +117,6 @@ function onAdError(adErrorEvent) {
     
 function onContentPauseRequested() {
   currentContentTime = window.mediaElement.currentTime;
-  broadcast("contentPauseRequested: " + currentContentTime);
   window.mediaManager.onEnded = function(event) {};
   window.mediaManager.onSeek = function(event) {
     var requestId = event.data.requestId;
@@ -143,7 +133,6 @@ function onContentResumeRequested() {
   });
   window.mediaManager.onSeek = origOnSeek;
   window.onEnded = origOnEnded;
-  broadcast("contentResumeRequested: " + currentContentTime);
   
   origOnLoad(origOnLoadEvent);
   seek(currentContentTime);
