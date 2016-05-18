@@ -119,24 +119,24 @@ function onContentPauseRequested() {
   currentContentTime = window.mediaElement.currentTime;
   window.mediaManager.onEnded = function(event) {};
   window.mediaManager.onSeek = function(event) {
-    var requestId = event.data.requestId;
-    window.mediaManager.broadcastStatus(true, requestId);
+    //var requestId = event.data.requestId;
+    //window.mediaManager.broadcastStatus(true, requestId);
   }
 }
     
 function onContentResumeRequested() {
   window.mediaManager.onEnded = origOnEnded;
-  window.mediaElement.addEventListener('playing', function() {
+  /*window.mediaElement.addEventListener('playing', function() {
     var mediaInfo = window.mediaManager.getMediaInformation();
     mediaInfo.duration = window.mediaElement.duration;
     window.mediaManager.setMediaInformation(mediaInfo);
-  });
+  });*/
   window.mediaManager.onSeek = origOnSeek;
-  window.onEnded = origOnEnded;
+  //window.onEnded = origOnEnded;
   
   origOnLoad(origOnLoadEvent);
   seek(currentContentTime);
-  window.mediaElement.play();
+  //window.mediaElement.play();
 }
 
 function onAllAdsCompleted() {
