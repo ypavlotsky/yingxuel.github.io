@@ -7,7 +7,6 @@ window.customMessageBus = window.castReceiverManager.getCastMessageBus(namespace
 window.castReceiverManager.start();
 
 window.castReceiverManager.onSenderDisconnected = function() {
-  broadcast("seek," + currentContentTime);
   window.close();
 }
 
@@ -122,6 +121,7 @@ function onContentPauseRequested() {
     //var requestId = event.data.requestId;
     //window.mediaManager.broadcastStatus(true, requestId);
   }
+  broadcast("onContentPauseRequested," + currentContentTime);
 }
     
 function onContentResumeRequested() {
@@ -136,6 +136,7 @@ function onContentResumeRequested() {
   
   origOnLoad(origOnLoadEvent);
   seek(currentContentTime);
+  broadcast("onContentResumeRequested");
   //window.mediaElement.play();
 }
 
