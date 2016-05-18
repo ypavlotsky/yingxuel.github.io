@@ -58,9 +58,8 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   console.log('onAdsManagerLoaded');
   broadcast('onAdsManagerLoaded');
   var adsRenderingSettings = new google.ima.AdsRenderingSettings();
-  if (currentContentTime != 0) {
-    adsRenderingSettings.playAdsAfterTime = currentContentTime;
-  }
+  adsRenderingSettings.playAdsAfterTime = currentContentTime;
+  
   // Get the ads manager.
   adsManager = adsManagerLoadedEvent.getAdsManager(
     window.mediaElement, adsRenderingSettings);
