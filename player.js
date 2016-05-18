@@ -7,6 +7,7 @@ window.customMessageBus = window.castReceiverManager.getCastMessageBus(namespace
 window.castReceiverManager.start();
 
 window.castReceiverManager.onSenderDisconnected = function() {
+  broadcast("seek," + currentContentTime);
   window.close();
 }
 
