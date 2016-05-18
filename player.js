@@ -3,13 +3,20 @@ window.splashImg = document.getElementById('splash');
 window.mediaElement = document.getElementById('media');
 window.mediaManager = new cast.receiver.MediaManager(window.mediaElement);
 window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
-window.customMessageBus = window.castReceiverManager.getCastMessageBus(namespace);
+window.customMessageBus = window.castReceiverManager
+    .getCastMessageBus(namespace);
 window.castReceiverManager.start();
 
+/**
+ * When chromecast device is disconnected from the sender app.
+ */
 window.castReceiverManager.onSenderDisconnected = function() {
   window.close();
-}
+};
 
+/**
+ * Receives messages from sender app.
+ */
 window.customMessageBus.onMessage = function(event) {
   var message = event.data.split(',');
   var senderId = event.senderId;
@@ -21,8 +28,11 @@ window.customMessageBus.onMessage = function(event) {
       seek(parseFloat(message[1]));
       return;
   }
-}
+};
 
+/**
+ * Sends messages to sender app.
+ */
 function broadcast(message) {
   window.customMessageBus.broadcast(message);
 }
@@ -30,35 +40,48 @@ function broadcast(message) {
 var origOnLoad = window.mediaManager.onLoad.bind(window.mediaManager);
 var origOnLoadEvent;
 
+/**
+ * Initializes IMA SDK when Media Manager is loaded.
+ */
 window.mediaManager.onLoad = function(event) {
   origOnLoadEvent = event;
   window.splashImg.style.display = 'none';
   window.mediaElement.style.display = 'block';
-  
+
   initIMA();
   origOnLoad(origOnLoadEvent);
-}
+};
 
 var origOnEnded, origOnSeek;
 var adDisplayContainer, adsLoader, adsManager;
 var currentContentTime = 0;
 var discardAdBreak = -1;
 
+/**
+ * Creates new AdsLoader and adds listeners.
+ */
 function initIMA() {
-  adDisplayContainer = new google.ima.AdDisplayContainer(document.getElementById('adContainer'), window.mediaElement);
+  adDisplayContainer = new google.ima.AdDisplayContainer(
+      document.getElementById('adContainer'), window.mediaElement);
   adDisplayContainer.initialize();
   adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-  adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded, false);
-  adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError, false);
-  adsLoader.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAllAdsCompleted, false);
+  adsLoader.addEventListener(
+      google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+      onAdsManagerLoaded, false);
+  adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError,
+      false);
+  adsLoader.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
+      onAllAdsCompleted, false);
 }
 
+/**
+ * Sends AdsManager playAdsAfterTime if starting in the middle of content and
+ * starts AdsManager.
+ */
 function onAdsManagerLoaded(adsManagerLoadedEvent) {
-  console.log('onAdsManagerLoaded');
-  broadcast('onAdsManagerLoaded');
   var adsRenderingSettings = new google.ima.AdsRenderingSettings();
   adsRenderingSettings.playAdsAfterTime = currentContentTime;
-  
+
   // Get the ads manager.
   adsManager = adsManagerLoadedEvent.getAdsManager(
     window.mediaElement, adsRenderingSettings);
@@ -85,9 +108,54 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   }
 }
 
+/**
+ * Handles errors from AdsLoader and AdsManager.
+ */
+function onAdError(adErrorEvent) {
+  broadcast("Ad Error: " + adErrorEvent.getError().toString());
+  // Handle the error logging.
+  if (adsManager) {
+    adsManager.destroy();
+  }
+  window.mediaElement.play();
+}
+
+/**
+ * When content is paused before an ad plays.
+ */
+function onContentPauseRequested() {
+  currentContentTime = window.mediaElement.currentTime;
+  window.mediaManager.onEnded = function(event) {};
+  window.mediaManager.onSeek = function(event) {};
+  broadcast("onContentPauseRequested," + currentContentTime);
+}
+
+/**
+ * When an ad finishes playing and content resumes.
+ */
+function onContentResumeRequested() {
+  window.mediaManager.onEnded = origOnEnded;
+  window.mediaManager.onSeek = origOnSeek;
+
+  origOnLoad(origOnLoadEvent);
+  seek(currentContentTime);
+  broadcast("onContentResumeRequested");
+}
+
+/**
+ * Destroys AdsManager when all requested ads have finished playing.
+ */
+function onAllAdsCompleted() {
+  if (adsManager) {
+    adsManager.destroy();
+  }
+}
+
+/**
+ * Sets time video should seek to when content resumes and requests ad tag.
+ */
 function requestAd(adTag, currentTime) {
   if (currentTime != 0) {
-    //seek(currentTime);
     currentContentTime = currentTime;
   }
   var adsRequest = new google.ima.AdsRequest();
@@ -99,49 +167,11 @@ function requestAd(adTag, currentTime) {
   adsLoader.requestAds(adsRequest);
 }
 
+/**
+ * Seeks content video.
+ */
 function seek(time) {
   currentContentTime = time;
   window.mediaElement.currentTime = time;
   window.mediaElement.play();
-}
-
-function onAdError(adErrorEvent) {
-  broadcast("Ad Error: " + adErrorEvent.getError().toString());
-  // Handle the error logging.
-  if (adsManager) {
-    adsManager.destroy();
-  }
-  window.mediaElement.play();
-}
-    
-function onContentPauseRequested() {
-  currentContentTime = window.mediaElement.currentTime;
-  window.mediaManager.onEnded = function(event) {};
-  window.mediaManager.onSeek = function(event) {
-    //var requestId = event.data.requestId;
-    //window.mediaManager.broadcastStatus(true, requestId);
-  }
-  broadcast("onContentPauseRequested," + currentContentTime);
-}
-    
-function onContentResumeRequested() {
-  window.mediaManager.onEnded = origOnEnded;
-  /*window.mediaElement.addEventListener('playing', function() {
-    var mediaInfo = window.mediaManager.getMediaInformation();
-    mediaInfo.duration = window.mediaElement.duration;
-    window.mediaManager.setMediaInformation(mediaInfo);
-  });*/
-  window.mediaManager.onSeek = origOnSeek;
-  //window.onEnded = origOnEnded;
-  
-  origOnLoad(origOnLoadEvent);
-  seek(currentContentTime);
-  broadcast("onContentResumeRequested");
-  //window.mediaElement.play();
-}
-
-function onAllAdsCompleted() {
-  if (adsManager) {
-    adsManager.destroy();
-  }
 }
