@@ -7,9 +7,9 @@ var Player = function() {
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = castReceiverManager.getCastMessageBus(namespace);
   this.castReceiverManager_.start();
-  this.originalOnLoad_ = this.mediaManager_.onLoad;
-  this.originalOnEnded_ = this.mediaManager_.onEnded;
-  this.originalOnSeek_ = this.mediaManager_.onSeek;
+  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
+  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
+  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
 
   this.setupCallbacks();
 }
@@ -41,7 +41,7 @@ Player.prototype.setupCallbacks = function() {
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
     self.initIMA();
-    broadcast('originalOnLoad_');
+    this.broadcast('originalOnLoad_');
     self.originalOnLoad_(event);
   };
 };
@@ -58,7 +58,7 @@ Player.prototype.broadcast = function(message) {
  * Creates new AdsLoader and adds listeners.
  */
 Player.prototype.initIMA = function() {
-  broadcast('initIMA');
+  this.broadcast('initIMA');
   this.currentContentTime_ = 0;
   var adDisplayContainer = new google.ima.AdDisplayContainer(
       document.getElementById('adContainer'), this.mediaElement_);
