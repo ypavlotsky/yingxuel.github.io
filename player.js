@@ -1,177 +1,177 @@
-var namespace = "urn:x-cast:com.google.ads.imasdk.cast";
-window.splashImg = document.getElementById('splash');
-window.mediaElement = document.getElementById('media');
-window.mediaManager = new cast.receiver.MediaManager(window.mediaElement);
-window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
-window.customMessageBus = window.castReceiverManager
-    .getCastMessageBus(namespace);
-window.castReceiverManager.start();
+'use strict';
 
-/**
- * When chromecast device is disconnected from the sender app.
- */
-window.castReceiverManager.onSenderDisconnected = function() {
-  window.close();
-};
+var Player = function() {
+  var namespace = 'urn:x-cast:com.google.ads.ima.cast';
+  this.mediaElement_ = document.getElementById('mediaElement');
+  this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+  this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
+  this.imaMessageBus_ = castReceiverManager.getCastMessageBus(namespace);
+  this.castReceiverManager_.start();
+  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
+  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
+  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
 
-/**
- * Receives messages from sender app.
- */
-window.customMessageBus.onMessage = function(event) {
-  var message = event.data.split(',');
-  var senderId = event.senderId;
-  switch (message[0]) {
-    case "requestAd":
-      requestAd(message[1], message[2]);
-      return;
-    case "seek":
-      seek(parseFloat(message[1]));
-      return;
-  }
-};
-
-/**
- * Sends messages to sender app.
- */
-function broadcast(message) {
-  window.customMessageBus.broadcast(message);
+  this.setupCallbacks();
 }
 
-var origOnLoad = window.mediaManager.onLoad.bind(window.mediaManager);
-var origOnLoadEvent;
+Player.prototype.setupCallbacks = function() {
+  var self = this;
 
-/**
- * Initializes IMA SDK when Media Manager is loaded.
- */
-window.mediaManager.onLoad = function(event) {
-  origOnLoadEvent = event;
-  window.splashImg.style.display = 'none';
-  window.mediaElement.style.display = 'block';
+  // Chromecast device is disconnected from sender app.
+  this.castReceiverManager_.onSenderDisconnected = function() {
+    window.close();
+  };
 
-  initIMA();
-  origOnLoad(origOnLoadEvent);
+  //Receives messages from sender app. The message is a comma separated string
+  // where the first substring indicates the function to be called and the
+  // following substrings are the parameters to be passed to the function.
+  this.imaMessageBus_.onMessage = function() {
+    var message = event.data.split(',');
+    var senderId = event.senderId;
+    switch (message[0]) {
+      case 'requestAd':
+        this.requestAd(message[1], parseFloat(message[2]));
+        return;
+      case 'seek':
+        this.seek(parseFloat(message[1]));
+        return;
+    }
+  };
+
+  // Initializes IMA SDK when Media Manager is loaded.
+  this.mediaManager_.onLoad = function(event) {
+    self.initIMA();
+    this.originalOnLoad_(event);
+  };
 };
 
-var origOnEnded, origOnSeek;
-var adDisplayContainer, adsLoader, adsManager;
-var currentContentTime = 0;
-var discardAdBreak = -1;
+/**
+ * Sends messages to all connected sender apps.
+ * @param {!string} message Message to be sent to senders.
+ */
+Player.prototype.broadcast = function(message) {
+  this.imaMessageBus_.broadcast(message);
+};
 
 /**
  * Creates new AdsLoader and adds listeners.
  */
-function initIMA() {
-  adDisplayContainer = new google.ima.AdDisplayContainer(
-      document.getElementById('adContainer'), window.mediaElement);
+Player.prototype.initIMA = function() {
+  this.currentContentTime_ = 0;
+  var adDisplayContainer = new google.ima.AdDisplayContainer(
+      document.getElementById('adContainer'), this.mediaElement_);
   adDisplayContainer.initialize();
-  adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-  adsLoader.addEventListener(
+  this.adsLoader_ = new google.ima.AdsLoader(adDisplayContainer);
+  this.adsLoader_.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-      onAdsManagerLoaded, false);
-  adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError,
-      false);
-  adsLoader.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
-      onAllAdsCompleted, false);
-}
+      this.onAdsManagerLoaded, false);
+  this.adsLoader_.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
+      this.onAdError, false);
+  this.adsLoader_.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
+      this.onAllAdsCompleted, false);
+};
 
 /**
  * Sends AdsManager playAdsAfterTime if starting in the middle of content and
  * starts AdsManager.
+ * @param {ima.AdsManagerLoadedEvent} adsManagerLoadedEvent The loaded event.
  */
-function onAdsManagerLoaded(adsManagerLoadedEvent) {
+Player.prototype.onAdsManagerLoaded = function(adsManagerLoadedEvent) {
   var adsRenderingSettings = new google.ima.AdsRenderingSettings();
-  adsRenderingSettings.playAdsAfterTime = currentContentTime;
+  adsRenderingSettings.playAdsAfterTime = this.currentContentTime_;
 
   // Get the ads manager.
-  adsManager = adsManagerLoadedEvent.getAdsManager(
-    window.mediaElement, adsRenderingSettings);
+  this.adsManager_ = adsManagerLoadedEvent.getAdsManager(
+    this.mediaElement_, adsRenderingSettings);
 
   // Add listeners to the required events.
-  adsManager.addEventListener(
+  this.adsManager_.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
-      onAdError);
-  adsManager.addEventListener(
+      this.onAdError);
+  this.adsManager_.addEventListener(
       google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-      onContentPauseRequested);
-  adsManager.addEventListener(
+      this.onContentPauseRequested);
+  this.adsManager_.addEventListener(
       google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-      onContentResumeRequested);
+      this.onContentResumeRequested);
 
   try {
-    adsManager.init(window.mediaElement.width, window.mediaElement.height, google.ima.ViewMode.FULLSCREEN);
-    adsManager.start();
-    origOnEnded = window.mediaManager.onEnded.bind(window.mediaManager);
-    origOnSeek = window.mediaManager.onSeek.bind(window.mediaManager);
+    this.adsManager_.init(this.mediaElement_.width, this.mediaElement_.height,
+        google.ima.ViewMode.FULLSCREEN);
+    this.adsManager_.start();
   } catch (adError) {
     // An error may be thrown if there was a problem with the VAST response.
-    broadcast("Ads Manager Error: " + adError);
+    this.broadcast('Ads Manager Error: ' + adError.getMessage());
   }
-}
+};
 
 /**
  * Handles errors from AdsLoader and AdsManager.
+ * @param {ima.AdErrorEvent.Type.AD_ERROR} adErrorEvent error
  */
-function onAdError(adErrorEvent) {
-  broadcast("Ad Error: " + adErrorEvent.getError().toString());
+Player.prototype.onAdError = function(adErrorEvent) {
+  this.broadcast('Ad Error: ' + adErrorEvent.getError().toString());
   // Handle the error logging.
-  if (adsManager) {
-    adsManager.destroy();
+  if (this.adsManager_) {
+    this.adsManager_.destroy();
   }
-  window.mediaElement.play();
-}
+  this.mediaElement_.play();
+};
 
 /**
- * When content is paused before an ad plays.
+ * When content is paused by AdsManager to start playing an ad.
  */
-function onContentPauseRequested() {
-  currentContentTime = window.mediaElement.currentTime;
-  window.mediaManager.onEnded = function(event) {};
-  window.mediaManager.onSeek = function(event) {};
-  broadcast("onContentPauseRequested," + currentContentTime);
-}
+Player.prototype.onContentPauseRequested = function() {
+  this.currentContentTime_ = this.mediaElement_.currentTime;
+  this.mediaManager_.onEnded = function(event) {};
+  this.mediaManager_.onSeek = function(event) {};
+  this.broadcast('onContentPauseRequested,' + this.currentContentTime_);
+};
 
 /**
- * When an ad finishes playing and content resumes.
+ * When an ad finishes playing and AdsManager resumes content.
  */
-function onContentResumeRequested() {
-  window.mediaManager.onEnded = origOnEnded;
-  window.mediaManager.onSeek = origOnSeek;
+Player.prototype.onContentResumeRequested = function() {
+  this.mediaManager_.onEnded = this.originalOnEnded_;
+  this.mediaManager_.onSeek = this.originalOnSeek_;
 
-  origOnLoad(origOnLoadEvent);
-  seek(currentContentTime);
-  broadcast("onContentResumeRequested");
-}
+  this.seek(this.currentContentTime_);
+  this.broadcast('onContentResumeRequested');
+};
 
 /**
  * Destroys AdsManager when all requested ads have finished playing.
  */
-function onAllAdsCompleted() {
-  if (adsManager) {
-    adsManager.destroy();
+Player.prototype.onAllAdsCompleted = function() {
+  if (this.adsManager_) {
+    this.adsManager_.destroy();
   }
-}
+};
 
 /**
  * Sets time video should seek to when content resumes and requests ad tag.
+ * @param {!string} adTag ad tag to be requested.
+ * @param {!float} currentTime time of content video we should resume from.
  */
-function requestAd(adTag, currentTime) {
+Player.prototype.requestAd = function(adTag, currentTime) {
   if (currentTime != 0) {
-    currentContentTime = currentTime;
+    this.currentContentTime_ = currentTime;
   }
   var adsRequest = new google.ima.AdsRequest();
   adsRequest.adTagUrl = adTag;
-  adsRequest.linearAdSlotWidth = window.mediaElement.width;
-  adsRequest.linearAdSlotHeight = window.mediaElement.height;
-  adsRequest.nonLinearAdSlotWidth = window.mediaElement.width;
-  adsRequest.nonLinearAdSlotHeight = window.mediaElement.height / 3;
-  adsLoader.requestAds(adsRequest);
-}
+  adsRequest.linearAdSlotWidth = this.mediaElement_.width;
+  adsRequest.linearAdSlotHeight = this.mediaElement_.height;
+  adsRequest.nonLinearAdSlotWidth = this.mediaElement_.width;
+  adsRequest.nonLinearAdSlotHeight = this.mediaElement_.height / 3;
+  this.adsLoader_.requestAds(adsRequest);
+};
 
 /**
  * Seeks content video.
+ * @param {!float} time time to seek to.
  */
-function seek(time) {
-  currentContentTime = time;
-  window.mediaElement.currentTime = time;
-  window.mediaElement.play();
-}
+Player.prototype.seek = function(time) {
+  this.currentContentTime_ = time;
+  this.mediaElement_.currentTime = time;
+  this.mediaElement_.play();
+};
