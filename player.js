@@ -30,10 +30,10 @@ Player.prototype.setupCallbacks = function() {
     var senderId = event.senderId;
     switch (message[0]) {
       case 'requestAd':
-        this.requestAd(message[1], parseFloat(message[2]));
+        self.requestAd(message[1], parseFloat(message[2]));
         return;
       case 'seek':
-        this.seek(parseFloat(message[1]));
+        self.seek(parseFloat(message[1]));
         return;
     }
   };
@@ -41,7 +41,7 @@ Player.prototype.setupCallbacks = function() {
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
     self.initIMA();
-    this.originalOnLoad_(event);
+    self.originalOnLoad_(event);
   };
 };
 
