@@ -7,9 +7,9 @@ var Player = function() {
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = castReceiverManager.getCastMessageBus(namespace);
   this.castReceiverManager_.start();
-  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
-  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
-  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
+  this.originalOnLoad_ = this.mediaManager_.onLoad;
+  this.originalOnEnded_ = this.mediaManager_.onEnded;
+  this.originalOnSeek_ = this.mediaManager_.onSeek;
 
   this.setupCallbacks();
 }
@@ -25,7 +25,7 @@ Player.prototype.setupCallbacks = function() {
   //Receives messages from sender app. The message is a comma separated string
   // where the first substring indicates the function to be called and the
   // following substrings are the parameters to be passed to the function.
-  this.imaMessageBus_.onMessage = function() {
+  this.imaMessageBus_.onMessage = function(event) {
     var message = event.data.split(',');
     var senderId = event.senderId;
     switch (message[0]) {
@@ -41,6 +41,7 @@ Player.prototype.setupCallbacks = function() {
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
     self.initIMA();
+    broadcast('originalOnLoad_');
     self.originalOnLoad_(event);
   };
 };
@@ -57,6 +58,7 @@ Player.prototype.broadcast = function(message) {
  * Creates new AdsLoader and adds listeners.
  */
 Player.prototype.initIMA = function() {
+  broadcast('initIMA');
   this.currentContentTime_ = 0;
   var adDisplayContainer = new google.ima.AdDisplayContainer(
       document.getElementById('adContainer'), this.mediaElement_);
