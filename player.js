@@ -5,8 +5,9 @@ var Player = function() {
   this.mediaElement_ = document.getElementById('mediaElement');
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
-  this.imaMessageBus_ = castReceiverManager.getCastMessageBus(namespace);
+  this.imaMessageBus_ = this.castReceiverManager.getCastMessageBus(namespace);
   this.castReceiverManager_.start();
+  this.broadcast('cast receiver manager start');
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
   this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
