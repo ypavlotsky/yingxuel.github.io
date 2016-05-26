@@ -2,9 +2,12 @@
 
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.cast';
+  console.log('in chromecast');
   this.mediaElement_ = mediaElement;//document.getElementById('mediaElement');
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+  console.log(this.mediaManager_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
+  console.log(this.castReceiverManager_);
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
   this.broadcast('blahblah');
   this.castReceiverManager_.start();
