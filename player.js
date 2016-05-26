@@ -1,11 +1,12 @@
 'use strict';
 
-var Player = function() {
+var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.cast';
-  this.mediaElement_ = document.getElementById('mediaElement');
+  this.mediaElement_ = mediaElement;//document.getElementById('mediaElement');
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
+  this.broadcast('blahblah');
   this.castReceiverManager_.start();
   this.broadcast('cast receiver manager start');
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
