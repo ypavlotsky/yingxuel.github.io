@@ -13,14 +13,20 @@ var Player = function(mediaElement) {
   };
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
   this.broadcast('blahblah');
-  this.castReceiverManager_.start();
+  
   this.broadcast('cast receiver manager start');
 
+  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
+  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
+  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
+
   this.setupCallbacks();
+  this.castReceiverManager_.start();
 }
 
 Player.prototype.setupCallbacks = function() {
   var self = this;
+  console.log('setting up callbacks');
 
   // Chromecast device is disconnected from sender app.
   this.castReceiverManager_.onSenderDisconnected = function() {
@@ -45,15 +51,13 @@ Player.prototype.setupCallbacks = function() {
 
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
+    var originalOnLoadEvent = event;
     console.log('new on load');
     self.initIMA();
     self.broadcast('originalOnLoad_');
-    self.originalOnLoad_(event);
+    self.originalOnLoad_(originalOnLoadEvent);
   };
 
-  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
-  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
-  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
 };
 
 /**
@@ -62,6 +66,7 @@ Player.prototype.setupCallbacks = function() {
  */
 Player.prototype.broadcast = function(message) {
   this.imaMessageBus_.broadcast(message);
+  console.log('Broadcast: ' + message);
 };
 
 /**
