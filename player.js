@@ -12,10 +12,7 @@ var Player = function(mediaElement) {
     console.log('Sender connected');
   };
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
-  this.broadcast('blahblah');
   
-  this.broadcast('cast receiver manager start');
-
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
   this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
@@ -54,7 +51,6 @@ Player.prototype.setupCallbacks = function() {
     var originalOnLoadEvent = event;
     console.log('new on load');
     self.initIMA();
-    self.broadcast('originalOnLoad_');
     self.originalOnLoad_(originalOnLoadEvent);
   };
 
@@ -73,7 +69,6 @@ Player.prototype.broadcast = function(message) {
  * Creates new AdsLoader and adds listeners.
  */
 Player.prototype.initIMA = function() {
-  this.broadcast('initIMA');
   this.currentContentTime_ = 0;
   var adDisplayContainer = new google.ima.AdDisplayContainer(
       document.getElementById('adContainer'), this.mediaElement_);
