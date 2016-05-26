@@ -8,13 +8,13 @@ var Player = function(mediaElement) {
   console.log(this.mediaManager_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   console.log(this.castReceiverManager_);
+  this.castReceiverManager_.onSenderConnected = function(event) {
+    console.log('Sender connected');
+  };
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
   this.broadcast('blahblah');
   this.castReceiverManager_.start();
   this.broadcast('cast receiver manager start');
-  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
-  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
-  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
 
   this.setupCallbacks();
 }
@@ -45,10 +45,15 @@ Player.prototype.setupCallbacks = function() {
 
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
+    console.log('new on load');
     self.initIMA();
-    this.broadcast('originalOnLoad_');
+    self.broadcast('originalOnLoad_');
     self.originalOnLoad_(event);
   };
+
+  this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
+  this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
+  this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
 };
 
 /**
