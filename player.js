@@ -5,8 +5,9 @@ var Player = function(mediaElement) {
   this.mediaElement_ = mediaElement;
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
-  this.castReceiverManager_.start();
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
+  this.castReceiverManager_.start();
+
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.originalOnEnded_ = this.mediaManager_.onEnded.bind(this.mediaManager_);
   this.originalOnSeek_ = this.mediaManager_.onSeek.bind(this.mediaManager_);
@@ -26,10 +27,11 @@ Player.prototype.setupCallbacks = function() {
   // where the first substring indicates the function to be called and the
   // following substrings are the parameters to be passed to the function.
   this.imaMessageBus_.onMessage = function(event) {
+    console.log(event.data);
     var message = event.data.split(',');
-    var senderId = event.senderId;
     switch (message[0]) {
       case 'requestAd':
+        console.log('request ad');
         self.requestAd(message[1], parseFloat(message[2]));
         return;
       case 'seek':
@@ -155,6 +157,7 @@ Player.prototype.onAllAdsCompleted = function() {
  * @param {!float} currentTime time of content video we should resume from.
  */
 Player.prototype.requestAd = function(adTag, currentTime) {
+  console.log('request ad: ' + adTag + ' at time: ' + currentTime);
   if (currentTime != 0) {
     this.currentContentTime_ = currentTime;
   }
