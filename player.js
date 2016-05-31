@@ -3,11 +3,9 @@
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.cast';
   this.mediaElement_ = mediaElement;
-  console.log(this.mediaElement_);
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
-  console.log(this.imaMessageBus_);
   this.castReceiverManager_.start();
 
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
@@ -16,10 +14,6 @@ var Player = function(mediaElement) {
 
   this.setupCallbacks();
 }
-
-Player.prototype.print = function() {
-  console.log(this.mediaElement_);
-};
 
 Player.prototype.setupCallbacks = function() {
   var self = this;
@@ -37,7 +31,6 @@ Player.prototype.setupCallbacks = function() {
     var message = event.data.split(',');
     switch (message[0]) {
       case 'requestAd':
-        console.log('request ad');
         self.requestAd(message[1], parseFloat(message[2]));
         return;
       case 'seek':
@@ -48,8 +41,9 @@ Player.prototype.setupCallbacks = function() {
 
   // Initializes IMA SDK when Media Manager is loaded.
   this.mediaManager_.onLoad = function(event) {
+    self.originalOnLoadEvent_ = event;
     self.initIMA();
-    self.originalOnLoad_(event);
+    self.originalOnLoad_(self.originalOnLoadEvent_);
   };
 };
 
@@ -65,7 +59,6 @@ Player.prototype.broadcast = function(message) {
  * Creates new AdsLoader and adds listeners.
  */
 Player.prototype.initIMA = function() {
-  console.log('init ima');
   this.currentContentTime_ = 0;
   var adDisplayContainer = new google.ima.AdDisplayContainer(
       document.getElementById('adContainer'), this.mediaElement_);
@@ -86,7 +79,6 @@ Player.prototype.initIMA = function() {
  * @param {ima.AdsManagerLoadedEvent} adsManagerLoadedEvent The loaded event.
  */
 Player.prototype.onAdsManagerLoaded = function(adsManagerLoadedEvent) {
-  console.log('ads manager loaded');
   var adsRenderingSettings = new google.ima.AdsRenderingSettings();
   adsRenderingSettings.playAdsAfterTime = this.currentContentTime_;
 
@@ -133,23 +125,20 @@ Player.prototype.onAdError = function(adErrorEvent) {
  * When content is paused by AdsManager to start playing an ad.
  */
 Player.prototype.onContentPauseRequested = function() {
-  console.log('content paused');
   this.currentContentTime_ = this.mediaElement_.currentTime;
   this.mediaManager_.onEnded = function(event) {};
   this.mediaManager_.onSeek = function(event) {};
-  this.broadcast('onContentPauseRequested,' + this.currentContentTime_);
 };
 
 /**
  * When an ad finishes playing and AdsManager resumes content.
  */
 Player.prototype.onContentResumeRequested = function() {
-  console.log('content resume');
   this.mediaManager_.onEnded = this.originalOnEnded_.bind(this.mediaManager_);
   this.mediaManager_.onSeek = this.originalOnSeek_.bind(this.mediaManager_);
 
+  this.originalOnLoad_(this.originalOnLoadEvent_);
   this.seek(this.currentContentTime_);
-  this.broadcast('onContentResumeRequested');
 };
 
 /**
@@ -167,7 +156,6 @@ Player.prototype.onAllAdsCompleted = function() {
  * @param {!float} currentTime time of content video we should resume from.
  */
 Player.prototype.requestAd = function(adTag, currentTime) {
-  console.log('request ad: ' + adTag + ' at time: ' + currentTime);
   if (currentTime != 0) {
     this.currentContentTime_ = currentTime;
   }
