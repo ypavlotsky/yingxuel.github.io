@@ -6,6 +6,7 @@ var Player = function(mediaElement) {
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
+  console.log(this.imaMessageBus_);
   this.castReceiverManager_.start();
 
   this.originalOnLoad_ = this.mediaManager_.onLoad.bind(this.mediaManager_);
@@ -45,7 +46,6 @@ Player.prototype.setupCallbacks = function() {
     self.initIMA();
     self.originalOnLoad_(event);
   };
-
 };
 
 /**
