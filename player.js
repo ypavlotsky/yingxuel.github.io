@@ -73,11 +73,11 @@ Player.prototype.initIMA = function() {
   this.adsLoader_ = new google.ima.AdsLoader(adDisplayContainer);
   this.adsLoader_.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-      this.onAdsManagerLoaded, false);
+      this.onAdsManagerLoaded.bind(this), false);
   this.adsLoader_.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,
-      this.onAdError, false);
+      this.onAdError.bind(this), false);
   this.adsLoader_.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
-      this.onAllAdsCompleted, false);
+      this.onAllAdsCompleted.bind(this), false);
 };
 
 /**
@@ -98,13 +98,13 @@ Player.prototype.onAdsManagerLoaded = function(adsManagerLoadedEvent) {
   // Add listeners to the required events.
   this.adsManager_.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
-      this.onAdError);
+      this.onAdError.bind(this));
   this.adsManager_.addEventListener(
       google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-      this.onContentPauseRequested);
+      this.onContentPauseRequested.bind(this));
   this.adsManager_.addEventListener(
       google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-      this.onContentResumeRequested);
+      this.onContentResumeRequested.bind(this));
 
   try {
     this.adsManager_.init(this.mediaElement_.width, this.mediaElement_.height,
@@ -145,8 +145,8 @@ Player.prototype.onContentPauseRequested = function() {
  */
 Player.prototype.onContentResumeRequested = function() {
   console.log('content resume');
-  this.mediaManager_.onEnded = this.originalOnEnded_;
-  this.mediaManager_.onSeek = this.originalOnSeek_;
+  this.mediaManager_.onEnded = this.originalOnEnded_.bind(this.mediaManager_);
+  this.mediaManager_.onSeek = this.originalOnSeek_.bind(this.mediaManager_);
 
   this.seek(this.currentContentTime_);
   this.broadcast('onContentResumeRequested');
