@@ -3,6 +3,7 @@
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.cast';
   this.mediaElement_ = mediaElement;
+  console.log(this.mediaElement_);
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.imaMessageBus_ = this.castReceiverManager_.getCastMessageBus(namespace);
