@@ -17,6 +17,10 @@ var Player = function(mediaElement) {
   this.setupCallbacks();
 }
 
+Player.prototype.print = function() {
+  console.log(this.mediaElement_);
+};
+
 Player.prototype.setupCallbacks = function() {
   var self = this;
 
