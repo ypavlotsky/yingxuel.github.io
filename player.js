@@ -133,6 +133,7 @@ Player.prototype.onAdError_ = function(adErrorEvent) {
  */
 Player.prototype.onContentPauseRequested_ = function() {
   this.currentContentTime_ = this.mediaElement_.currentTime;
+  this.broadcast_('onContentPauseRequested,' + this.currentContentTime_);
   this.mediaManager_.onEnded = function(event) {};
   this.mediaManager_.onSeek = function(event) {};
 };
@@ -141,6 +142,7 @@ Player.prototype.onContentPauseRequested_ = function() {
  * When an ad finishes playing and AdsManager resumes content.
  */
 Player.prototype.onContentResumeRequested_ = function() {
+  this.broadcast_('onContentResumeRequested');
   this.mediaManager_.onEnded = this.originalOnEnded_.bind(this.mediaManager_);
   this.mediaManager_.onSeek = this.originalOnSeek_.bind(this.mediaManager_);
 
