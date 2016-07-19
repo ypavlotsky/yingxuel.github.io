@@ -182,6 +182,7 @@ Player.prototype.requestAd_ = function(adTag, currentTime) {
  * @param {!float} time time to seek to.
  */
 Player.prototype.seek_ = function(time) {
+  this.broadcast_('seeking to: ' + time);
   this.currentContentTime_ = time;
   this.mediaElement_.currentTime = time;
   this.mediaElement_.play();
