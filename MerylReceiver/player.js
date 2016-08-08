@@ -13,7 +13,6 @@ var Player = function(mediaElement) {
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
     this.broadcast_('Sender Connected');
-    console.log('Sender Connected');
   };
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
@@ -45,7 +44,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.ERROR,
       function(event) {
-        console.log("Got an error: " +event.getStreamData().errorMessage);
+        this.broadcast_("Got an error: " +event.getStreamData().errorMessage);
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
@@ -75,7 +74,7 @@ Player.prototype.start = function() {
  * @param {cast.receiver.CastReceiverManager.SenderDisconnectedEvent} event
  */
 Player.prototype.onSenderDisconnected = function(event) {
-  console.log('onSenderDisconnected');
+  this.broadcast_('onSenderDisconnected');
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
   if (this.receiverManager_.getSenders().length === 0 &&
