@@ -58,11 +58,12 @@ var Player = function(mediaElement) {
  * @private
  */
 Player.prototype.broadcast_ = function(message) {
-  //if (this.imaMessageBus_) {
-    //this.imaMessageBus_.broadcast(message);
-    console.log('message bus:');
-    console.log(this.imaMessageBus_);
-  //}
+  console.log('message: ' + message);
+  if (this.imaMessageBus_ && this.imaMessageBus_.broadcast) {
+    this.imaMessageBus_.broadcast(message);
+    //console.log('message bus:');
+    //console.log(this.imaMessageBus_);
+  }
 };
 
 
