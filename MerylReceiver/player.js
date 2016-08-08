@@ -8,11 +8,12 @@
  */
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
+  var this_ = this;
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
-    this.broadcast_('Sender Connected');
+    this_.broadcast_('Sender Connected');
   };
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
@@ -44,7 +45,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.ERROR,
       function(event) {
-        this.broadcast_("Got an error: " +event.getStreamData().errorMessage);
+        this_.broadcast_("Got an error: " +event.getStreamData().errorMessage);
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
@@ -57,9 +58,9 @@ var Player = function(mediaElement) {
  * @private
  */
 Player.prototype.broadcast_ = function(message) {
-  if (this.imaMessageBus_) {
-    //this.imaMessageBus_.broadcast(message);
-  }
+  //if (this.imaMessageBus_) {
+    this.imaMessageBus_.broadcast(message);
+  //}
 };
 
 
