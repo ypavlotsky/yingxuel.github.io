@@ -16,7 +16,7 @@ var Player = function(mediaElement) {
   };
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
-  this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
+  //this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
   this.broadcast_('init');
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.receiverStreamManager_ =
@@ -58,9 +58,9 @@ var Player = function(mediaElement) {
  * @private
  */
 Player.prototype.broadcast_ = function(message) {
-  if (this.imaMessageBus_) {
+  //if (this.imaMessageBus_) {
     //this.imaMessageBus_.broadcast(message);
-  }
+  //}
 };
 
 
