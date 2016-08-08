@@ -17,7 +17,6 @@ var Player = function(mediaElement) {
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
   this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
-  this.broadcast_('init');
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.receiverStreamManager_ =
       new google.ima.cast.api.ReceiverStreamManager(this.mediaElement_);
@@ -59,7 +58,7 @@ var Player = function(mediaElement) {
  */
 Player.prototype.broadcast_ = function(message) {
   if (this.imaMessageBus_) {
-    //this.imaMessageBus_.broadcast(message);
+    this.imaMessageBus_.broadcast(message);
   }
 };
 
