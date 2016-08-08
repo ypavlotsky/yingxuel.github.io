@@ -7,14 +7,17 @@
  * @param {!HTMLMediaElement} mediaElement for video rendering.
  */
 var Player = function(mediaElement) {
+  var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
+    this.broadcast_('Sender Connected');
     console.log('Sender Connected');
   };
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
+  this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.receiverStreamManager_ =
       new google.ima.cast.api.ReceiverStreamManager(this.mediaElement_);
@@ -50,9 +53,20 @@ var Player = function(mediaElement) {
 
 
 /**
+ * Sends messages to all connected sender apps.
+ * @param {!String} message Message to be sent to senders.
+ * @private
+ */
+Player.prototype.broadcast_ = function(message) {
+  this.imaMessageBus_.broadcast(message);
+};
+
+
+/**
  * Starts receiver manager which tracks playback of the stream.
  */
 Player.prototype.start = function() {
+  this.broadcast_('Receiver manager start');
   this.receiverManager_.start();
 };
 
