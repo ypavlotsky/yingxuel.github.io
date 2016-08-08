@@ -58,7 +58,7 @@ var Player = function(mediaElement) {
  */
 Player.prototype.broadcast_ = function(message) {
   if (this.imaMessageBus_) {
-    this.imaMessageBus_.broadcast(message);
+    //this.imaMessageBus_.broadcast(message);
   }
 };
 
