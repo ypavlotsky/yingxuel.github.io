@@ -18,6 +18,10 @@ var Player = function(mediaElement) {
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected.bind(this);
   this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
+  this.imaMessageBus_.onMessage = function(event) {
+    console.log(event.data);
+  };
+
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.receiverStreamManager_ =
       new google.ima.cast.api.ReceiverStreamManager(this.mediaElement_);
@@ -36,6 +40,8 @@ var Player = function(mediaElement) {
         //   "language": "fr"
         // }
         var subtitles = event.getStreamData().subtitles;
+        this_.broadcast_('subtitles:');
+        this_.broadcast_(subtitles);
         var mediaInfo = {};
         mediaInfo.contentId = streamUrl;
         mediaInfo.contentType = 'application/x-mpegurl';
@@ -58,11 +64,8 @@ var Player = function(mediaElement) {
  * @private
  */
 Player.prototype.broadcast_ = function(message) {
-  console.log('message: ' + message);
   if (this.imaMessageBus_ && this.imaMessageBus_.broadcast) {
     this.imaMessageBus_.broadcast(message);
-    //console.log('message bus:');
-    //console.log(this.imaMessageBus_);
   }
 };
 
