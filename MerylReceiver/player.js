@@ -54,6 +54,13 @@ var Player = function(mediaElement) {
         console.log("Got an error: " +event.getStreamData().errorMessage);
       },
       false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.CUEPOINTS_CHANGED,
+      function(event) {
+        console.log("Cuepoints changed: ");
+        console.log(event.getStreamData.cuepoints);
+      },
+      false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
 };
 
