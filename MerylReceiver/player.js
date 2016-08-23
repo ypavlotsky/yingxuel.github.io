@@ -54,7 +54,7 @@ var Player = function(mediaElement) {
         //   "url": "http://www.sis.com/1234/subtitles_fr.ttml",
         //   "language": "fr"
         // }
-        var subtitles = event.getStreamData().subtitles;
+        self.subtitles = event.getStreamData().subtitles;
         console.log('subtitles:');
         console.log(subtitles);
         var mediaInfo = {};
@@ -143,6 +143,7 @@ Player.prototype.onStreamDataReceived = function(url) {
   };
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
+  this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0]);
 };
 
 /**
@@ -150,14 +151,14 @@ Player.prototype.onStreamDataReceived = function(url) {
  * @param {!number} time The time stream will return to in seconds.
  */
 Player.prototype.bookmark_ = function() {
-  var bookmarkTime = 
-    this.receiverStreamManager_.contentTimeForStreamTime(this.castPlayer_.currentTime);
+  var bookmarkTime = this.receiverStreamManager_
+    .contentTimeForStreamTime(this.mediaElement_.currentTime);
   console.log('Bookmark Time: ' + bookmarkTime);
   this.receiverStreamManager_.requestStream(this.streamRequest);
   var newTime =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   console.log('New Time: ' + newTime);
-  this.castPlayer_.seek(newTime);
+  this.mediaElement_.seek(newTime);
 };
 
 /**
@@ -166,6 +167,6 @@ Player.prototype.bookmark_ = function() {
  */
 Player.prototype.seek_ = function(time) {
   console.log('Seeking to: ' + time);
-  this.castPlayer_.
+  this.mediaElement_.
     seek(this.receiverStreamManager_.previousCuepointForStreamTime(time));
 };
