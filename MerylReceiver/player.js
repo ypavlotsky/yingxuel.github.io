@@ -156,7 +156,7 @@ Player.prototype.bookmark_ = function() {
   var newTime =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   console.log('New Time: ' + newTime);
-  this.mediaElement_.seek(newTime);
+  this.mediaElement_.currentTime = newTime;
 };
 
 /**
@@ -165,6 +165,6 @@ Player.prototype.bookmark_ = function() {
  */
 Player.prototype.seek_ = function(time) {
   console.log('Seeking to: ' + time);
-  this.mediaElement_.
-    seek(this.receiverStreamManager_.previousCuepointForStreamTime(time));
+  this.mediaElement_.currentTime =
+    this.receiverStreamManager_.previousCuepointForStreamTime(time);
 };
