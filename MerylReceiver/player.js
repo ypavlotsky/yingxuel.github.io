@@ -55,8 +55,6 @@ var Player = function(mediaElement) {
         //   "language": "fr"
         // }
         self.subtitles = event.getStreamData().subtitles;
-        console.log('subtitles:');
-        console.log(subtitles);
         var mediaInfo = {};
         mediaInfo.contentId = streamUrl;
         mediaInfo.contentType = 'application/x-mpegurl';
