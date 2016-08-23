@@ -166,5 +166,5 @@ Player.prototype.bookmark_ = function() {
 Player.prototype.seek_ = function(time) {
   console.log('Seeking to: ' + time);
   this.mediaElement_.currentTime =
-    this.receiverStreamManager_.previousCuepointForStreamTime(time);
+    this.receiverStreamManager_.previousCuepointForStreamTime(time)['start'];
 };
