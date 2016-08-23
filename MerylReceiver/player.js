@@ -164,7 +164,8 @@ Player.prototype.bookmark_ = function() {
  * @param {!number} time The time the player will seek to in seconds.
  */
 Player.prototype.seek_ = function(time) {
-  console.log('Seeking to: ' + time);
-  this.mediaElement_.currentTime =
-    this.receiverStreamManager_.previousCuepointForStreamTime(time)['start'];
+  var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(time)['start'];
+  this.mediaElement_.currentTime = cuepointStartTime;
+  console.log('Seeking to: ' + cuepointStartTime);
+
 };
