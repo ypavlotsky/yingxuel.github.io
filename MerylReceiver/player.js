@@ -149,9 +149,9 @@ Player.prototype.onStreamDataReceived = function(url) {
  * Bookmarks content so stream will return to this location if revisited.
  * @param {!number} time The time stream will return to in seconds.
  */
-Player.prototype.bookmark_ = function(time) {
+Player.prototype.bookmark_ = function() {
   var bookmarkTime = 
-    this.receiverStreamManager_.contentTimeForStreamTime(time);
+    this.receiverStreamManager_.contentTimeForStreamTime(this.castPlayer_.currentTime);
   console.log('Bookmark Time: ' + bookmarkTime);
   this.receiverStreamManager_.requestStream(this.streamRequest);
   var newTime =
@@ -165,6 +165,7 @@ Player.prototype.bookmark_ = function(time) {
  * @param {!number} time The time the player will seek to in seconds.
  */
 Player.prototype.seek_ = function(time) {
+  console.log('Seeking to: ' + time);
   this.castPlayer_.
     seek(this.receiverStreamManager_.previousCuepointForStreamTime(time));
 };
