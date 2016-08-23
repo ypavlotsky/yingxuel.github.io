@@ -8,7 +8,7 @@
  */
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
-  var this_ = this;
+  var self = this;
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
@@ -19,7 +19,22 @@ var Player = function(mediaElement) {
       this.onSenderDisconnected.bind(this);
   this.imaMessageBus_ = this.receiverManager_.getCastMessageBus(namespace);
   this.imaMessageBus_.onMessage = function(event) {
-    console.log(event.data);
+    console.log('Received message from sender: ' + event.data);
+    var message = event.data.split(',');
+    var method = message[0];
+    switch (method) {
+      case 'bookmark':
+        var time = parseFloat(message[1]);
+        self.bookmark_(time);
+        break;
+      case 'seek':
+        var time = parseFloat(message[1]);
+        self.seek_(time);
+        break;
+      default:
+        self.broadcast_('Message not recognized');
+        break;
+    }
   };
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
@@ -106,8 +121,8 @@ Player.prototype.onSenderDisconnected = function(event) {
  */
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
-  var streamRequest = new google.ima.cast.api.StreamRequest(imaRequestData);
-  this.receiverStreamManager_.requestStream(streamRequest);
+  this.streamRequest = new google.ima.cast.api.StreamRequest(imaRequestData);
+  this.receiverStreamManager_.requestStream(this.streamRequest);
 };
 
 
@@ -128,4 +143,28 @@ Player.prototype.onStreamDataReceived = function(url) {
   };
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
+};
+
+/**
+ * Bookmarks content so stream will return to this location if revisited.
+ * @param {!number} time The time stream will return to in seconds.
+ */
+Player.prototype.bookmark_ = function(time) {
+  var bookmarkTime = 
+    this.receiverStreamManager_.contentTimeForStreamTime(time);
+  console.log('Bookmark Time: ' + bookmarkTime);
+  this.receiverStreamManager_.requestStream(this.streamRequest);
+  var newTime =
+    this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
+  console.log('New Time: ' + newTime);
+  this.castPlayer_.seek(newTime);
+};
+
+/**
+ * Seeks the player location to given time.
+ * @param {!number} time The time the player will seek to in seconds.
+ */
+Player.prototype.seek_ = function(time) {
+  this.castPlayer_.
+    seek(this.receiverStreamManager_.previousCuepointForStreamTime(time));
 };
