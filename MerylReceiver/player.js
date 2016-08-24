@@ -74,6 +74,12 @@ var Player = function(mediaElement) {
         console.log(event.getStreamData.cuepoints);
       },
       false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_STARTED,
+      function(event) {
+        console.log("Ad started event");
+      },
+      false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
 };
 
