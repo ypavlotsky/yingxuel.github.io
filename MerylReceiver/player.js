@@ -158,6 +158,7 @@ Player.prototype.onStreamDataReceived = function(url) {
  * @param {!number} time The time stream will return to in seconds.
  */
 Player.prototype.bookmark_ = function() {
+  console.log('Current Time: ' + this.mediaElement_.currentTime);
   var bookmarkTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
   console.log('Bookmark Time: ' + bookmarkTime);
@@ -173,7 +174,7 @@ Player.prototype.bookmark_ = function() {
  * @param {!number} time The time the player will seek to in seconds.
  */
 Player.prototype.seek_ = function(time) {
-  var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(time)['start'];
+  var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(this.mediaElement_.currentTime + time)['start'];
   this.mediaElement_.currentTime = cuepointStartTime;
   console.log('Seeking to: ' + cuepointStartTime);
 
