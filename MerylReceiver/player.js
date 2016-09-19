@@ -9,6 +9,7 @@
 var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
   var self = this;
+  this.adNum_ = 1;
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
@@ -27,9 +28,9 @@ var Player = function(mediaElement) {
         var time = parseFloat(message[1]);
         self.bookmark_(time);
         break;
-      case 'seek':
+      case 'skip':
         var time = parseFloat(message[1]);
-        self.seek_(time);
+        self.skip_(time);
         break;
       default:
         self.broadcast_('Message not recognized');
@@ -41,6 +42,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_ =
       new google.ima.cast.api.ReceiverStreamManager(this.mediaElement_);
   var onStreamDataReceived = this.onStreamDataReceived.bind(this);
+  var sendPingForTesting = this.sendPingForTesting_.bind(this);
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.LOADED,
       function(event) {
@@ -55,7 +57,6 @@ var Player = function(mediaElement) {
         //   "language": "fr"
         // }
         self.subtitles = event.getStreamData().subtitles;
-        //console.log(self.subtitles);
         var mediaInfo = {};
         mediaInfo.contentId = streamUrl;
         mediaInfo.contentType = 'application/x-mpegurl';
@@ -65,7 +66,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.ERROR,
       function(event) {
-        console.log("Got an error: " +event.getStreamData().errorMessage);
+        console.log("Error: " + event.getStreamData().errorMessage);
       },
       false);
   this.receiverStreamManager_.addEventListener(
@@ -76,12 +77,46 @@ var Player = function(mediaElement) {
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_STARTED,
+      google.ima.cast.api.StreamEvent.Type.AD_START,
       function(event) {
-        console.log("Ad started event");
+        sendPingForTesting(event, self.adNum);
+  self.adNum++;
+      },
+      false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_FIRST_QUARTILE,
+      function(event) {
+        sendPingForTesting(event, self.adNum);
+      },
+      false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_MIDPOINT,
+      function(event) {
+        sendPingForTesting(event, self.adNum);
+      },
+      false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_THIRD_QUARTILE,
+      function(event) {
+        sendPingForTesting(event, self.adNum);
+      },
+      false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_COMPLETE,
+      function(event) {
+        sendPingForTesting(event, self.adNum);
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
+};
+
+
+Player.prototype.sendPingForTesting_ = function(event, number) {
+  String testingPing = 'http://www.example.com/' + event + '@?num='
+      + number + 'ld';
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open('GET', testingPing, true);
+  xmlhttp.send();
 };
 
 
@@ -92,7 +127,9 @@ var Player = function(mediaElement) {
  */
 Player.prototype.broadcast_ = function(message) {
   if (this.imaMessageBus_ && this.imaMessageBus_.broadcast) {
-    this.imaMessageBus_.broadcast(message);
+    // Broadcast is commented out for automated tests because communication to
+    // sender is broken on harness.
+    //this.imaMessageBus_.broadcast(message);
   }
 };
 
@@ -101,7 +138,6 @@ Player.prototype.broadcast_ = function(message) {
  * Starts receiver manager which tracks playback of the stream.
  */
 Player.prototype.start = function() {
-  console.log('Receiver manager start');
   this.receiverManager_.start();
 };
 
@@ -170,10 +206,10 @@ Player.prototype.bookmark_ = function() {
 };
 
 /**
- * Seeks the player location to given time.
- * @param {!number} time The time the player will seek to in seconds.
+ * Skips player location by given number of seconds.
+ * @param {!number} time The time the player will skip in seconds.
  */
-Player.prototype.seek_ = function(time) {
+Player.prototype.skip_ = function(time) {
   var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(this.mediaElement_.currentTime + time)['start'];
   this.mediaElement_.currentTime = cuepointStartTime;
   console.log('Seeking to: ' + cuepointStartTime);
