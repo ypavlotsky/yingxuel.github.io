@@ -163,9 +163,9 @@ Player.prototype.onSenderDisconnected = function(event) {
  */
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
-  console.log(imaRequestData);
+  //console.log(imaRequestData);
   this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
-  console.log(this.streamRequest);
+  //console.log(this.streamRequest);
   this.receiverStreamManager_.requestStream(this.streamRequest);
 };
 
