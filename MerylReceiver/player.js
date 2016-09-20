@@ -108,7 +108,6 @@ var Player = function(mediaElement) {
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
-  this.onLoad();
 };
 
 
@@ -163,15 +162,9 @@ Player.prototype.onSenderDisconnected = function(event) {
  * @param {!cast.receiver.MediaManager.Event} event The load event.
  */
 Player.prototype.onLoad = function(event) {
-  //var imaRequestData = event.data.media.customData;
-  //console.log(imaRequestData);
-  var streamData = {};
-  //streamRequest.assetKey = Sender.SAMPLE_ASSET_KEY;
-  streamData.contentSourceId = '19823';
-  streamData.videoId = 'ima-test';
-  this.streamRequest = new google.ima.cast.api.VODStreamRequest(streamData);
-  //this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
-  console.log(this.streamRequest);
+  var imaRequestData = event.data.media.customData;
+  this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
+  //console.log(this.streamRequest);
   this.receiverStreamManager_.requestStream(this.streamRequest);
 };
 
