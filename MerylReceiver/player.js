@@ -77,34 +77,34 @@ var Player = function(mediaElement) {
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      ima.common.EventType.START,
+      google.ima.cast.api.StreamEvent.Type.STARTED,
       function(event) {
-        sendPingForTesting(event, self.adNum);
-  self.adNum++;
+        sendPingForTesting('start', self.adNum_);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      ima.common.EventType.FIRST_QUARTILE,
+      google.ima.cast.api.StreamEvent.Type.FIRST_QUARTILE,
       function(event) {
-        sendPingForTesting(event, self.adNum);
+        sendPingForTesting('first', self.adNum_);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      ima.common.EventType.MIDPOINT,
+      google.ima.cast.api.StreamEvent.Type.MIDPOINT,
       function(event) {
-        sendPingForTesting(event, self.adNum);
+        sendPingForTesting('mid', self.adNum_);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      ima.common.EventType.THIRD_QUARTILE,
+      google.ima.cast.api.StreamEvent.Type.THIRD_QUARTILE,
       function(event) {
-        sendPingForTesting(event, self.adNum);
+        sendPingForTesting('third', self.adNum_);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      ima.common.EventType.COMPLETE,
+      google.ima.cast.api.StreamEvent.Type.COMPLETE,
       function(event) {
-        sendPingForTesting(event, self.adNum);
+        sendPingForTesting('complete', self.adNum_);
+        self.adNum_++;
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
@@ -163,8 +163,9 @@ Player.prototype.onSenderDisconnected = function(event) {
  */
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
+  console.log(imaRequestData);
   this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
-  //console.log(this.streamRequest);
+  console.log(this.streamRequest);
   this.receiverStreamManager_.requestStream(this.streamRequest);
 };
 
