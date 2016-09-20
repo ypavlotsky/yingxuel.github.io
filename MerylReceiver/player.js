@@ -77,32 +77,32 @@ var Player = function(mediaElement) {
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_START,
+      ima.common.EventType.START,
       function(event) {
         sendPingForTesting(event, self.adNum);
   self.adNum++;
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_FIRST_QUARTILE,
+      ima.common.EventType.FIRST_QUARTILE,
       function(event) {
         sendPingForTesting(event, self.adNum);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_MIDPOINT,
+      ima.common.EventType.MIDPOINT,
       function(event) {
         sendPingForTesting(event, self.adNum);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_THIRD_QUARTILE,
+      ima.common.EventType.THIRD_QUARTILE,
       function(event) {
         sendPingForTesting(event, self.adNum);
       },
       false);
   this.receiverStreamManager_.addEventListener(
-      google.ima.cast.api.StreamEvent.Type.AD_COMPLETE,
+      ima.common.EventType.COMPLETE,
       function(event) {
         sendPingForTesting(event, self.adNum);
       },
