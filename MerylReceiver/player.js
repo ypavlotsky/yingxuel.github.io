@@ -10,6 +10,7 @@ var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
   var self = this;
   this.adNum_ = 1;
+  this.currentContentTime_ = 0;
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
@@ -111,6 +112,12 @@ var Player = function(mediaElement) {
         self.adNum_++;
       },
       false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
+      function(event) {
+        self.seek_(self.currentContentTime_);
+      },
+      false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
 };
 
@@ -121,7 +128,7 @@ Player.prototype.sendPingForTesting_ = function(event, number) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open('GET', testingPing, true);
   xmlhttp.send();
-  console.log('Pinging url: ' + testingPing);
+  //this.broadcast_('Pinging url: ' + testingPing);
 };
 
 
@@ -134,7 +141,7 @@ Player.prototype.broadcast_ = function(message) {
   if (this.imaMessageBus_ && this.imaMessageBus_.broadcast) {
     // Broadcast is commented out for automated tests because communication to
     // sender is broken on harness.
-    //this.imaMessageBus_.broadcast(message);
+    this.imaMessageBus_.broadcast(message);
   }
 };
 
@@ -199,14 +206,14 @@ Player.prototype.onStreamDataReceived = function(url) {
  * @param {number} time The time stream will return to in seconds.
  */
 Player.prototype.bookmark_ = function() {
-  console.log('Current Time: ' + this.mediaElement_.currentTime);
+  this.broadcast_('Current Time: ' + this.mediaElement_.currentTime);
   var bookmarkTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
-  console.log('Bookmark Time: ' + bookmarkTime);
+  this.broadcast_('Bookmark Time: ' + bookmarkTime);
   this.receiverStreamManager_.requestStream(this.streamRequest);
   var newTime =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
-  console.log('New Time: ' + newTime);
+  this.broadcast_('New Time: ' + newTime);
   this.mediaElement_.currentTime = newTime;
 };
 
@@ -217,7 +224,7 @@ Player.prototype.bookmark_ = function() {
 Player.prototype.skip_ = function(time) {
   var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(this.mediaElement_.currentTime + time)['start'];
   this.mediaElement_.currentTime = cuepointStartTime;
-  console.log('Seeking to: ' + cuepointStartTime);
+  this.broadcast_('Seeking to: ' + cuepointStartTime);
 };
 
 /**
@@ -226,5 +233,6 @@ Player.prototype.skip_ = function(time) {
  */
 Player.prototype.seek_ = function(time) {
   this.mediaElement_.currentTime = time;
-  console.log('Seeking to: ' + time);
+  this.currentContentTime_ = time;
+  this.broadcast_('Seeking to: ' + time);
 };
