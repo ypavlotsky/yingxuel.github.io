@@ -28,6 +28,9 @@ var Player = function(mediaElement) {
         var time = parseFloat(message[1]);
         self.bookmark_(time);
         break;
+      case 'seek':
+        var time = parseFloat(message[1]);
+        self.seek_(time);
       case 'skip':
         var time = parseFloat(message[1]);
         self.skip_(time);
@@ -192,7 +195,7 @@ Player.prototype.onStreamDataReceived = function(url) {
 
 /**
  * Bookmarks content so stream will return to this location if revisited.
- * @param {!number} time The time stream will return to in seconds.
+ * @param {number} time The time stream will return to in seconds.
  */
 Player.prototype.bookmark_ = function() {
   console.log('Current Time: ' + this.mediaElement_.currentTime);
@@ -208,11 +211,19 @@ Player.prototype.bookmark_ = function() {
 
 /**
  * Skips player location by given number of seconds.
- * @param {!number} time The time the player will skip in seconds.
+ * @param {number} time The time the player will skip in seconds.
  */
 Player.prototype.skip_ = function(time) {
   var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(this.mediaElement_.currentTime + time)['start'];
   this.mediaElement_.currentTime = cuepointStartTime;
   console.log('Seeking to: ' + cuepointStartTime);
+};
 
+/**
+ * Seeks player to location.
+ * @param {number} time The time to seek to in seconds.
+ */
+Player.prototype.seek_ = function(time) {
+  this.mediaElement_.currentTime = time;
+  console.log('Seeking to: ' + time);
 };
