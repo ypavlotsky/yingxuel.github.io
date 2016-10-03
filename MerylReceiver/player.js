@@ -191,7 +191,7 @@ Player.prototype.onStreamDataReceived = function(url) {
   };
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
-  this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0]);
+  this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
 };
 
 /**
