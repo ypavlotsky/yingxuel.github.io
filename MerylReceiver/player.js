@@ -71,6 +71,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.ERROR,
       function(event) {
+        self.broadcast_(event.getStreamData().errorMessage);
         console.log("Error: " + event.getStreamData().errorMessage);
       },
       false);
@@ -84,6 +85,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.STARTED,
       function(event) {
+        self.broadcast_('started');
         sendPingForTesting('start', self.adNum_);
       },
       false);
@@ -108,6 +110,7 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.COMPLETE,
       function(event) {
+        self.broadcast_('complete');
         sendPingForTesting('complete', self.adNum_);
         self.adNum_++;
       },
@@ -115,12 +118,14 @@ var Player = function(mediaElement) {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_STARTED,
       function(event) {
+        self.broadcast_('ad break started');
         self.currentContentTime_ = self.mediaElement_.currentTime;
       },
       false);
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
+        self.broadcast_('ad break ended');
         self.seek_(self.currentContentTime_);
       },
       false);
