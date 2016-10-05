@@ -113,6 +113,12 @@ var Player = function(mediaElement) {
       },
       false);
   this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_BREAK_STARTED,
+      function(event) {
+        self.currentContentTime_ = self.mediaElement_.currentTime;
+      },
+      false);
+  this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.seek_(self.currentContentTime_);
@@ -128,7 +134,7 @@ Player.prototype.sendPingForTesting_ = function(event, number) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open('GET', testingPing, true);
   xmlhttp.send();
-  //this.broadcast_('Pinging url: ' + testingPing);
+  this.broadcast_('Pinging url: ' + testingPing);
 };
 
 
