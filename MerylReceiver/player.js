@@ -126,7 +126,7 @@ var Player = function(mediaElement) {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.broadcast_('ad break ended');
-        self.seek_(self.currentContentTime_);
+        //self.seek_(self.currentContentTime_);
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
