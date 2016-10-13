@@ -206,7 +206,7 @@ Player.prototype.onStreamDataReceived = function(url) {
     'url': url,
     'mediaElement': this.mediaElement_
   });
-  this.broadcast_('onStreamDataReceived');
+  this.broadcast_('onStreamDataReceived: ' + url);
   var self = this;
   host.processMetadata = function(type, data, timestamp) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
