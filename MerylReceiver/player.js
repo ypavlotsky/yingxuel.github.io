@@ -10,7 +10,6 @@ var Player = function(mediaElement) {
   var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
   var self = this;
   this.adNum_ = 1;
-  this.currentContentTime_ = 0;
   this.castPlayer_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
@@ -32,10 +31,6 @@ var Player = function(mediaElement) {
       case 'seek':
         var time = parseFloat(message[1]);
         self.seek_(time);
-      case 'skip':
-        var time = parseFloat(message[1]);
-        self.skip_(time);
-        break;
       default:
         self.broadcast_('Message not recognized');
         break;
@@ -119,14 +114,12 @@ var Player = function(mediaElement) {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_STARTED,
       function(event) {
         self.broadcast_('ad break started');
-        self.currentContentTime_ = self.mediaElement_.currentTime;
       },
       false);
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.broadcast_('ad break ended');
-        //self.seek_(self.currentContentTime_);
       },
       false);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
@@ -150,8 +143,6 @@ Player.prototype.sendPingForTesting_ = function(event, number) {
  */
 Player.prototype.broadcast_ = function(message) {
   if (this.imaMessageBus_ && this.imaMessageBus_.broadcast) {
-    // Broadcast is commented out for automated tests because communication to
-    // sender is broken on harness.
     this.imaMessageBus_.broadcast(message);
   }
 };
@@ -233,21 +224,10 @@ Player.prototype.bookmark_ = function() {
 };
 
 /**
- * Skips player location by given number of seconds.
- * @param {number} time The time the player will skip in seconds.
- */
-Player.prototype.skip_ = function(time) {
-  var cuepointStartTime = this.receiverStreamManager_.previousCuepointForStreamTime(this.mediaElement_.currentTime + time)['start'];
-  this.mediaElement_.currentTime = cuepointStartTime;
-  this.broadcast_('Seeking to: ' + cuepointStartTime);
-};
-
-/**
  * Seeks player to location.
  * @param {number} time The time to seek to in seconds.
  */
 Player.prototype.seek_ = function(time) {
   this.mediaElement_.currentTime = time;
-  this.currentContentTime_ = time;
   this.broadcast_('Seeking to: ' + time);
 };
