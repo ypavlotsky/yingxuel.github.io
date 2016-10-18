@@ -11,6 +11,7 @@ var Player = function(mediaElement) {
   var self = this;
   this.adNum_ = 1;
   this.castPlayer_ = null;
+  this.resumeTime_ = null;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
@@ -31,6 +32,7 @@ var Player = function(mediaElement) {
       case 'seek':
         var time = parseFloat(message[1]);
         self.seek_(time);
+        break;
       default:
         self.broadcast_('Message not recognized');
         break;
@@ -205,6 +207,10 @@ Player.prototype.onStreamDataReceived = function(url) {
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
   this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
+  if (this.resumeTime_) {
+    this.mediaElement_.currentTime = this.resumeTime_;
+    this.resumeTime_ = null;
+  }
 };
 
 /**
@@ -217,10 +223,10 @@ Player.prototype.bookmark_ = function() {
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
   this.broadcast_('Bookmark Time: ' + bookmarkTime);
   this.receiverStreamManager_.requestStream(this.streamRequest);
-  var newTime =
+  this.resumeTime_ =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   this.broadcast_('New Time: ' + newTime);
-  this.mediaElement_.currentTime = newTime;
+  //this.mediaElement_.currentTime = newTime;
 };
 
 /**
