@@ -33,6 +33,9 @@ var Player = function(mediaElement) {
         var time = parseFloat(message[1]);
         self.seek_(time);
         break;
+      case 'snapback':
+        var time = parseFloat(message[1]);
+        self.snapback_(time);
       default:
         self.broadcast_('Message not recognized');
         break;
@@ -235,4 +238,20 @@ Player.prototype.bookmark_ = function() {
 Player.prototype.seek_ = function(time) {
   this.mediaElement_.currentTime = time;
   this.broadcast_('Seeking to: ' + time);
+};
+
+/**
+ * Seeks player to location and plays last ad break if it has not been
+ * seen already.
+ * @param {number} time The time to seek to in seconds.
+ */
+Player.prototype.snapback_ = function(time) {
+  var previousCuepoint = 
+    this.receiverStreamManager_.previousCuePointForStreamTime(time);
+  if (previousCuepoint.played) {
+    this.mediaElement_.currentTime = time;    
+  } else {
+    this.mediaElement_.currentTime = previousCuepoint.start;
+  }
+  this.broadcast_('Seeking to: ' + this.mediaElement_.currentTime);
 };
