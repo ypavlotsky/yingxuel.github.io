@@ -200,7 +200,6 @@ Player.prototype.onStreamDataReceived = function(url) {
     'mediaElement': this.mediaElement_
   });
   this.broadcast_('onStreamDataReceived: ' + url);
-  var self = this;
   host.processMetadata = function(type, data, timestamp) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
   };
@@ -225,7 +224,7 @@ Player.prototype.bookmark_ = function() {
   this.receiverStreamManager_.requestStream(this.streamRequest);
   this.resumeTime_ =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
-  this.broadcast_('New Time: ' + newTime);
+  this.broadcast_('Resume Time: ' + this.resumeTime_);
   //this.mediaElement_.currentTime = newTime;
 };
 
