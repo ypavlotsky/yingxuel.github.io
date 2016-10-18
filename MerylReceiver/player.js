@@ -36,6 +36,7 @@ var Player = function(mediaElement) {
       case 'snapback':
         var time = parseFloat(message[1]);
         self.snapback_(time);
+        break;
       default:
         self.broadcast_('Message not recognized');
         break;
@@ -43,6 +44,12 @@ var Player = function(mediaElement) {
   };
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+  this.mediaManager_.onLoad = this.onLoad.bind(this);
+};
+
+
+Player.prototype.initReceiverStreamManager_ = function() {
+  var self = this;
   this.receiverStreamManager_ =
       new google.ima.cast.api.ReceiverStreamManager(this.mediaElement_);
   var onStreamDataReceived = this.onStreamDataReceived.bind(this);
@@ -127,7 +134,6 @@ var Player = function(mediaElement) {
         self.broadcast_('ad break ended');
       },
       false);
-  this.mediaManager_.onLoad = this.onLoad.bind(this);
 };
 
 
@@ -224,6 +230,7 @@ Player.prototype.bookmark_ = function() {
   var bookmarkTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
   this.broadcast_('Bookmark Time: ' + bookmarkTime);
+  this.initReceiverStreamManager_();
   this.receiverStreamManager_.requestStream(this.streamRequest);
   this.resumeTime_ =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
