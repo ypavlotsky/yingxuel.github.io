@@ -218,7 +218,7 @@ Player.prototype.onStreamDataReceived = function(url) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
   };
   this.castPlayer_ = new cast.player.api.Player(host);
-  f (this.resumeTime_) {
+  if (this.resumeTime_) {
     this.mediaElement_.currentTime = this.resumeTime_;
     this.resumeTime_ = null;
   }
