@@ -249,7 +249,8 @@ Player.prototype.snapback_ = function(time) {
   var previousCuepoint = 
     this.receiverStreamManager_.previousCuepointForStreamTime(time);
   console.log(previousCuepoint);
-  if (previousCuepoint.played) {
+  var played = previousCuepoint.played;
+  if (played) {
     this.mediaElement_.currentTime = time;    
   } else {
     this.mediaElement_.currentTime = previousCuepoint.start;
