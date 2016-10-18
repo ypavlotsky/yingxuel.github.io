@@ -248,6 +248,7 @@ Player.prototype.seek_ = function(time) {
 Player.prototype.snapback_ = function(time) {
   var previousCuepoint = 
     this.receiverStreamManager_.previousCuepointForStreamTime(time);
+  console.log(previousCuepoint);
   if (previousCuepoint.played) {
     this.mediaElement_.currentTime = time;    
   } else {
