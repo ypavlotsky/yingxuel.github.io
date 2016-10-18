@@ -196,6 +196,10 @@ Player.prototype.onLoad = function(event) {
   }
   //console.log(this.streamRequest);
   this.receiverStreamManager_.requestStream(this.streamRequest);
+  if (this.resumeTime_) {
+    //this.mediaElement_.currentTime = this.resumeTime_;
+    this.resumeTime_ = null;
+  }
 };
 
 
@@ -214,12 +218,12 @@ Player.prototype.onStreamDataReceived = function(url) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
   };
   this.castPlayer_ = new cast.player.api.Player(host);
-  this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
-  this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
-  if (this.resumeTime_) {
-    //this.mediaElement_.currentTime = this.resumeTime_;
+  f (this.resumeTime_) {
+    this.mediaElement_.currentTime = this.resumeTime_;
     this.resumeTime_ = null;
   }
+  this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
+  this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
 };
 
 /**
