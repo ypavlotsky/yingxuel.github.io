@@ -7,7 +7,7 @@
  * @param {!HTMLMediaElement} mediaElement for video rendering.
  */
 var Player = function(mediaElement) {
-  var namespace = 'urn:x-cast:com.google.ads.ima.meryl.cast';
+  var namespace = 'urn:x-cast:com.google.ads.interactivemedia.dai.cast';
   var self = this;
   this.adNum_ = 1;
   this.castPlayer_ = null;
