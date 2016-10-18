@@ -217,7 +217,7 @@ Player.prototype.onStreamDataReceived = function(url) {
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
   this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
   if (this.resumeTime_) {
-    this.mediaElement_.currentTime = this.resumeTime_;
+    //this.mediaElement_.currentTime = this.resumeTime_;
     this.resumeTime_ = null;
   }
 };
@@ -236,7 +236,7 @@ Player.prototype.bookmark_ = function() {
   this.resumeTime_ =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   this.broadcast_('Resume Time: ' + this.resumeTime_);
-  //this.mediaElement_.currentTime = newTime;
+  this.mediaElement_.currentTime = newTime;
 };
 
 /**
