@@ -247,7 +247,7 @@ Player.prototype.seek_ = function(time) {
  */
 Player.prototype.snapback_ = function(time) {
   var previousCuepoint = 
-    new google.ima.cast.api.CuePoint(this.receiverStreamManager_.previousCuepointForStreamTime(time));
+    this.receiverStreamManager_.previousCuepointForStreamTime(time);
   console.log(previousCuepoint);
   var played = previousCuepoint.played;
   if (played) {
