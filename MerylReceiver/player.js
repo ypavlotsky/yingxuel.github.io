@@ -193,6 +193,7 @@ Player.prototype.onSenderDisconnected = function(event) {
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
   this.startTime_ = imaRequestData.startTime;
+  this.broadcast_('start time: ' + this.startTime_);
   if (imaRequestData.assetKey) {
     this.streamRequest = new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
