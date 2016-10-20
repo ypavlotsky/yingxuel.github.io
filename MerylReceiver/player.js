@@ -264,10 +264,9 @@ Player.prototype.snapback_ = function(time) {
   console.log(previousCuepoint);
   var played = previousCuepoint.played;
   if (played) {
-    this.mediaElement_.currentTime = time;    
+    this.seek_(time);
   } else {
-    this.mediaElement_.currentTime = previousCuepoint.start;
+    this.seek_(previousCuepoint.start);
     this.seekToTimeAfterAdBreak_ = time;
   }
-  this.broadcast_('Seeking to: ' + this.mediaElement_.currentTime);
 };
