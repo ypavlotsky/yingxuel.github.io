@@ -193,7 +193,6 @@ Player.prototype.onSenderDisconnected = function(event) {
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
   this.startTime_ = imaRequestData.startTime;
-  this.broadcast_('start time: ' + this.startTime_);
   if (imaRequestData.assetKey) {
     this.streamRequest = new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
@@ -220,10 +219,10 @@ Player.prototype.onStreamDataReceived = function(url) {
   };
   var currentTime = this.startTime_ > 0 ? this.receiverStreamManager_
     .streamTimeForContentTime(this.startTime_) : 0;
+  this.broadcast_('start time: ' + currentTime);
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(
     cast.player.api.CreateHlsStreamingProtocol(host), currentTime);
-  this.seek_(currentTime);
   this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
 };
 
