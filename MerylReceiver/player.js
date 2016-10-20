@@ -11,7 +11,7 @@ var Player = function(mediaElement) {
   var self = this;
   this.adNum_ = 1;
   this.castPlayer_ = null;
-  this.resumeTime_ = null;
+  this.seekToTimeAfterAdBreak_ = 0;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
@@ -133,6 +133,9 @@ Player.prototype.initReceiverStreamManager_ = function() {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.broadcast_('ad break ended');
+        if (self.seekToTimeAfterAdBreak_ > 0) {
+          self.mediaElement_.currentTime = self.seekToTimeAfterAdBreak_;
+        }
       },
       false);
 };
@@ -196,10 +199,6 @@ Player.prototype.onLoad = function(event) {
   }
   //console.log(this.streamRequest);
   this.receiverStreamManager_.requestStream(this.streamRequest);
-  if (this.resumeTime_) {
-    //this.mediaElement_.currentTime = this.resumeTime_;
-    this.resumeTime_ = null;
-  }
 };
 
 
@@ -218,10 +217,6 @@ Player.prototype.onStreamDataReceived = function(url) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
   };
   this.castPlayer_ = new cast.player.api.Player(host);
-  if (this.resumeTime_) {
-    this.mediaElement_.currentTime = this.resumeTime_;
-    this.resumeTime_ = null;
-  }
   this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
   this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
 };
@@ -237,8 +232,8 @@ Player.prototype.bookmark_ = function() {
   this.broadcast_('Bookmark Time: ' + bookmarkTime);
   this.initReceiverStreamManager_();
   this.receiverStreamManager_.requestStream(this.streamRequest);
-  this.resumeTime_ =
-    this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
+  //this.resumeTime_ =
+    //this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   //this.mediaElement_.currentTime = this.resumeTime_;
   this.broadcast_('Resume Time: ' + this.resumeTime_);
 };
@@ -266,6 +261,7 @@ Player.prototype.snapback_ = function(time) {
     this.mediaElement_.currentTime = time;    
   } else {
     this.mediaElement_.currentTime = previousCuepoint.start;
+    this.seekToTimeAfterAdBreak_ = time;
   }
   this.broadcast_('Seeking to: ' + this.mediaElement_.currentTime);
 };
