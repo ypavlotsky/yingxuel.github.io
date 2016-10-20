@@ -13,6 +13,7 @@ var Player = function(mediaElement) {
   this.castPlayer_ = null;
   this.seekToTimeAfterAdBreak_ = 0;
   this.startTime_ = 0;
+  this.adIsPlaying_ = false;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
@@ -127,15 +128,18 @@ Player.prototype.initReceiverStreamManager_ = function() {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_STARTED,
       function(event) {
-        self.broadcast_('ad break started');
+        self.adIsPlaying_ = true;
+        self.broadcast_('ad_break_started');
       },
       false);
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
-        self.broadcast_('ad break ended');
+        self.adIsPlaying_ = false;
+        self.broadcast_('ad_break_ended');
         if (self.seekToTimeAfterAdBreak_ > 0) {
           self.seek_(self.seekToTimeAfterAdBreak_);
+          self.seekToTimeAfterAdBreak_ = 0;
         }
       },
       false);
@@ -242,6 +246,9 @@ Player.prototype.bookmark_ = function() {
  * @param {number} time The time to seek to in seconds.
  */
 Player.prototype.seek_ = function(time) {
+  if (this.adIsPlaying_) {
+    return;
+  }
   this.mediaElement_.currentTime = time;
   this.broadcast_('Seeking to: ' + time);
 };
