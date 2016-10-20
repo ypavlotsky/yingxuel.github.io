@@ -239,7 +239,7 @@ Player.prototype.bookmark_ = function() {
   this.receiverStreamManager_.requestStream(this.streamRequest);
   this.resumeTime_ =
     this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
-  this.mediaElement_.currentTime = this.resumeTime_;
+  //this.mediaElement_.currentTime = this.resumeTime_;
   this.broadcast_('Resume Time: ' + this.resumeTime_);
 };
 
