@@ -12,6 +12,7 @@ var Player = function(mediaElement) {
   this.adNum_ = 1;
   this.castPlayer_ = null;
   this.seekToTimeAfterAdBreak_ = 0;
+  this.startTime_ = 0;
   this.mediaElement_ = mediaElement;
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
@@ -191,7 +192,7 @@ Player.prototype.onSenderDisconnected = function(event) {
  */
 Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
-  //console.log(imaRequestData);
+  this.startTime_ = imaRequestData.startTime;
   if (imaRequestData.assetKey) {
     this.streamRequest = new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
@@ -216,8 +217,11 @@ Player.prototype.onStreamDataReceived = function(url) {
   host.processMetadata = function(type, data, timestamp) {
     self.receiverStreamManager_.processMetadata(type, data, timestamp);
   };
+  var currentTime = this.startTime_ > 0 ? this.receiverStreamManager_
+    .streamTimeForContentTime(this.startTime_) : 0;
   this.castPlayer_ = new cast.player.api.Player(host);
-  this.castPlayer_.load(cast.player.api.CreateHlsStreamingProtocol(host));
+  this.castPlayer_.load(
+    cast.player.api.CreateHlsStreamingProtocol(host), currentTime);
   this.castPlayer_.enableCaptions(true, 'ttml', this.subtitles[0].ttml);
 };
 
@@ -230,10 +234,6 @@ Player.prototype.bookmark_ = function() {
   var bookmarkTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
   this.broadcast_('bookmark,' + bookmarkTime);
-  //this.resumeTime_ =
-    //this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
-  //this.mediaElement_.currentTime = this.resumeTime_;
-  this.broadcast_('Resume Time: ' + this.resumeTime_);
 };
 
 /**
