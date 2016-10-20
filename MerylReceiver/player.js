@@ -134,7 +134,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         self.broadcast_('ad break ended');
         if (self.seekToTimeAfterAdBreak_ > 0) {
-          self.mediaElement_.currentTime = self.seekToTimeAfterAdBreak_;
+          self.seek_(self.seekToTimeAfterAdBreak_);
         }
       },
       false);
@@ -229,9 +229,7 @@ Player.prototype.bookmark_ = function() {
   this.broadcast_('Current Time: ' + this.mediaElement_.currentTime);
   var bookmarkTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
-  this.broadcast_('Bookmark Time: ' + bookmarkTime);
-  this.initReceiverStreamManager_();
-  this.receiverStreamManager_.requestStream(this.streamRequest);
+  this.broadcast_('bookmark,' + bookmarkTime);
   //this.resumeTime_ =
     //this.receiverStreamManager_.streamTimeForContentTime(bookmarkTime);
   //this.mediaElement_.currentTime = this.resumeTime_;
