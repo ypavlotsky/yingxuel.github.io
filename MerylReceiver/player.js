@@ -146,7 +146,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_PROGRESS,
       function(event) {
-        console.log(event);
+        console.log(self.receiverStreamManager_.getCurrentAdData());
       },
       false);
 };
