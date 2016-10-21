@@ -15,7 +15,6 @@ var Player = function(mediaElement) {
   this.startTime_ = 0;
   this.adIsPlaying_ = false;
   this.mediaElement_ = mediaElement;
-  this.adTimeValue_ = document.getElementById('time-value');
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
     console.log('Sender Connected');
@@ -149,8 +148,9 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         var adData = self.receiverStreamManager_.getCurrentAdData();
         console.log(adData);
-        self.adTimeValue_ = Math.ceil(parseFloat(adData.duration)
-          - parseFloat(adData.currentTime));
+        document.getElementById('time-value').innerHTML
+          = Math.ceil(parseFloat(adData.duration)
+            - parseFloat(adData.currentTime));
       },
       false);
 };
