@@ -148,6 +148,10 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         var adData = self.receiverStreamManager_.getCurrentAdData();
         console.log(adData);
+        document.getElementById('ad-position').innerHTML
+          = adData.adPosition;
+        document.getElementById('total-ads').innerHTML
+          = adData.totalAds;
         document.getElementById('time-value').innerHTML
           = Math.ceil(parseFloat(adData.duration)
             - parseFloat(adData.currentTime));
