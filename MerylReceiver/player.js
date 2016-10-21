@@ -143,6 +143,12 @@ Player.prototype.initReceiverStreamManager_ = function() {
         }
       },
       false);
+  this.receiverStreamManager_.addEventListener(
+      google.ima.cast.api.StreamEvent.Type.AD_PROGRESS,
+      function(event) {
+        console.log(event);
+      },
+      false);
 };
 
 
