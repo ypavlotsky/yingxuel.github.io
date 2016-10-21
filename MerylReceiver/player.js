@@ -47,7 +47,7 @@ var Player = function(mediaElement) {
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
-  this.initReceiverStreamManager_();
+  //this.initReceiverStreamManager_();
 };
 
 
@@ -209,15 +209,21 @@ Player.prototype.onSenderDisconnected = function(event) {
  * @param {!cast.receiver.MediaManager.Event} event The load event.
  */
 Player.prototype.onLoad = function(event) {
-  var imaRequestData = event.data.media.customData;
+  /*var imaRequestData = event.data.media.customData;
   this.startTime_ = imaRequestData.startTime;
   if (imaRequestData.assetKey) {
     this.streamRequest = new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
     this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
   }
-  //console.log(this.streamRequest);
-  this.receiverStreamManager_.requestStream(this.streamRequest);
+  this.receiverStreamManager_.requestStream(this.streamRequest);*/
+  var host = new cast.player.api.Host({
+    'url': 'https://dai.google.com/ondemand/hls/content/19823/vid/ima-test/CHS/streams/436ef975-de92-4fa4-b8e1-80e813e70252/master.m3u8',
+    'mediaElement': this.mediaElement_
+  });
+  this.castPlayer_ = new cast.player.api.Player(host);
+  this.castPlayer_.load(
+    cast.player.api.CreateHlsStreamingProtocol(host));
 };
 
 
