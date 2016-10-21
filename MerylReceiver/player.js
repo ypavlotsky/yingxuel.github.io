@@ -149,7 +149,8 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         var adData = self.receiverStreamManager_.getCurrentAdData();
         console.log(adData);
-        self.adTimeValue_ = adData.duration - adData.currentTime;
+        self.adTimeValue_ = Math.ceil(parseFloat(adData.duration)
+          - parseFloat(adData.currentTime));
       },
       false);
 };
