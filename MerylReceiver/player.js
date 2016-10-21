@@ -15,6 +15,7 @@ var Player = function(mediaElement) {
   this.startTime_ = 0;
   this.adIsPlaying_ = false;
   this.mediaElement_ = mediaElement;
+  this.adTimeValue_ = document.getElementById('time-value');
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onSenderConnected = function(event) {
     console.log('Sender Connected');
@@ -146,7 +147,9 @@ Player.prototype.initReceiverStreamManager_ = function() {
   this.receiverStreamManager_.addEventListener(
       google.ima.cast.api.StreamEvent.Type.AD_PROGRESS,
       function(event) {
-        console.log(self.receiverStreamManager_.getCurrentAdData());
+        var adData = self.receiverStreamManager_.getCurrentAdData();
+        console.log(adData);
+        self.adTimeValue_ = adData.duration - adData.currentTime;
       },
       false);
 };
