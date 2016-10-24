@@ -71,7 +71,6 @@ Player.prototype.initReceiverStreamManager_ = function() {
         //   "language": "fr"
         // }
         self.subtitles = event.getStreamData().subtitles;
-        console.log(event.getStreamData());
         var mediaInfo = {};
         mediaInfo.contentId = streamUrl;
         mediaInfo.contentType = 'application/x-mpegurl';
@@ -89,7 +88,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       google.ima.cast.api.StreamEvent.Type.CUEPOINTS_CHANGED,
       function(event) {
         console.log("Cuepoints changed: ");
-        console.log(event.getStreamData().cuepoints);
+        console.log(event.getStreamData());
       },
       false);
   this.receiverStreamManager_.addEventListener(
