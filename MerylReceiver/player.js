@@ -71,7 +71,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
         //   "language": "fr"
         // }
         self.subtitles = event.getStreamData().subtitles;
-        console.log(self.subtitles);
+        console.log(event.getStreamData());
         var mediaInfo = {};
         mediaInfo.contentId = streamUrl;
         mediaInfo.contentType = 'application/x-mpegurl';
