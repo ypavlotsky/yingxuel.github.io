@@ -285,7 +285,7 @@ Player.prototype.snapback_ = function(time) {
   if (played) {
     this.seek_(time);
   } else {
-    this.seek_(previousCuepoint.start);
+    this.seek_(previousCuepoint.start + 0.1);
     this.seekToTimeAfterAdBreak_ = time;
   }
 };
