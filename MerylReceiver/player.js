@@ -128,6 +128,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_STARTED,
       function(event) {
         self.adIsPlaying_ = true;
+        document.getElementById('ad-ui').style.display = 'block';
         self.broadcast_('ad_break_started');
       },
       false);
@@ -135,6 +136,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.adIsPlaying_ = false;
+        document.getElementById('ad-ui').style.display = 'none'; 
         self.broadcast_('ad_break_ended');
         if (self.seekToTimeAfterAdBreak_ > 0) {
           self.seek_(self.seekToTimeAfterAdBreak_);
