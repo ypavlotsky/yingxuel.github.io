@@ -47,6 +47,8 @@ var Player = function(mediaElement) {
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
+  this.mediaManager_.customizedStatusCallback = this.customizedStatusCallback_.bind(this);
+
   this.initReceiverStreamManager_();
 };
 
@@ -225,6 +227,12 @@ Player.prototype.onLoad = function(event) {
   this.castPlayer_ = new cast.player.api.Player(host);
   this.castPlayer_.load(
     cast.player.api.CreateHlsStreamingProtocol(host));*/
+};
+
+Player.prototype.customizedStatusCallback_ = function(mediaStatus) {
+  mediaStatus.customData = this.receiverStreamManager_
+    .contentTimeForStreamTime(this.mediaElement_.currentTime);
+  return mediaStatus;
 };
 
 
