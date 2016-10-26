@@ -39,6 +39,10 @@ var Player = function(mediaElement) {
         var time = parseFloat(message[1]);
         self.snapback_(time);
         break;
+      case 'getContentTime':
+         var contentTime = this.receiverStreamManager_.contentTimeForStreamTime(this.mediaElement_.currentTime);
+        self.broadcast_('contentTime:' + contentTime);
+        break;
       default:
         self.broadcast_('Message not recognized');
         break;
