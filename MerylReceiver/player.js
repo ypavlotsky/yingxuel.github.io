@@ -92,6 +92,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         console.log("Cuepoints changed: ");
         console.log(event.getStreamData());
+        self.broadcast_('cuepoints changed ' + event.getStreamData().cuepoints);
       },
       false);
   this.receiverStreamManager_.addEventListener(
