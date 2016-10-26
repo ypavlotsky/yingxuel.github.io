@@ -48,6 +48,7 @@ var Player = function(mediaElement) {
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
   this.mediaManager_.customizedStatusCallback = this.customizedStatusCallback_.bind(this);
+  this.mediaManager_.onGetStatus = this.onGetStatus_.bind(this);
 
   this.initReceiverStreamManager_();
 };
@@ -236,6 +237,10 @@ Player.prototype.customizedStatusCallback_ = function(mediaStatus) {
   mediaStatus.customData = { 'contentTime': contentTime };
   return mediaStatus;
 };
+
+Player.prototype.onGetStatus_ = function(event) {
+  this.mediaManager.sendStatus(event.senderId, event.data.requestId, true);
+}
 
 
 /**
