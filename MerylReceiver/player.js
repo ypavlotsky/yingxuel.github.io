@@ -47,8 +47,8 @@ var Player = function(mediaElement) {
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
-  this.mediaManager_.customizedStatusCallback = this.customizedStatusCallback_.bind(this);
-  this.mediaManager_.onGetStatus = this.onGetStatus_.bind(this);
+  //this.mediaManager_.customizedStatusCallback = this.customizedStatusCallback_.bind(this);
+  //this.mediaManager_.onGetStatus = this.onGetStatus_.bind(this);
 
   this.initReceiverStreamManager_();
 };
