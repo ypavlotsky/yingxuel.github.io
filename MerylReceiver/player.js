@@ -242,6 +242,7 @@ Player.prototype.onGetStatus_ = function(event) {
   var contentTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
   
+  console.log("Content Time: " + contentTime);
   this.mediaManager.sendStatus(event.senderId, event.data.requestId, true, { 'contentTime': contentTime});
 }
 
