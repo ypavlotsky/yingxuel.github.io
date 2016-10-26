@@ -40,7 +40,7 @@ var Player = function(mediaElement) {
         self.snapback_(time);
         break;
       case 'getContentTime':
-        var contentTime = this.getContentTime_();
+        var contentTime = self.getContentTime_();
         self.broadcast_('contentTime:' + contentTime);
         break;
       default:
