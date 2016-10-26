@@ -230,8 +230,10 @@ Player.prototype.onLoad = function(event) {
 };
 
 Player.prototype.customizedStatusCallback_ = function(mediaStatus) {
-  mediaStatus.customData = this.receiverStreamManager_
+  var contentTime = this.receiverStreamManager_
     .contentTimeForStreamTime(this.mediaElement_.currentTime);
+  
+  mediaStatus.customData = { 'contentTime': contentTime };
   return mediaStatus;
 };
 
