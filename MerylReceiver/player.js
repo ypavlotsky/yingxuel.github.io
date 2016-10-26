@@ -239,7 +239,10 @@ Player.prototype.customizedStatusCallback_ = function(mediaStatus) {
 };
 
 Player.prototype.onGetStatus_ = function(event) {
-  this.mediaManager.sendStatus(event.senderId, event.data.requestId, true);
+  var contentTime = this.receiverStreamManager_
+    .contentTimeForStreamTime(this.mediaElement_.currentTime);
+  
+  this.mediaManager.sendStatus(event.senderId, event.data.requestId, true, { 'contentTime': contentTime});
 }
 
 
