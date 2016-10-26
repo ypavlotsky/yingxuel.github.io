@@ -40,7 +40,7 @@ var Player = function(mediaElement) {
         self.snapback_(time);
         break;
       case 'getContentTime':
-         var contentTime = this.receiverStreamManager_.contentTimeForStreamTime(this.mediaElement_.currentTime);
+        var contentTime = this.getContentTime_();
         self.broadcast_('contentTime:' + contentTime);
         break;
       default:
@@ -167,6 +167,10 @@ Player.prototype.initReceiverStreamManager_ = function() {
       },
       false);
 };
+
+Player.prototype.getContentTime_ = function() {
+  return this.receiverStreamManager_.contentTimeForStreamTime(this.mediaElement_.currentTime);
+}
 
 
 Player.prototype.sendPingForTesting_ = function(event, number) {
