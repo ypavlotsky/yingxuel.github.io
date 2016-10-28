@@ -230,6 +230,7 @@ Player.prototype.onLoad = function(event) {
     this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
   }
   this.receiverStreamManager_.requestStream(this.streamRequest);
+  document.getElementById('splash').style.display = 'none'; 
   /*var host = new cast.player.api.Host({
     'url': 'https://dai.google.com/ondemand/hls/content/19823/vid/ima-test/CHS/streams/436ef975-de92-4fa4-b8e1-80e813e70252/master.m3u8',
     'mediaElement': this.mediaElement_
