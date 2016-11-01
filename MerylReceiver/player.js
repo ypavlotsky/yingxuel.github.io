@@ -41,7 +41,7 @@ var Player = function(mediaElement) {
         break;
       case 'getContentTime':
         var contentTime = self.getContentTime_();
-        self.broadcast_('contentTime:' + contentTime);
+        self.broadcast_('contentTime,' + contentTime);
         break;
       default:
         self.broadcast_('Message not recognized');
