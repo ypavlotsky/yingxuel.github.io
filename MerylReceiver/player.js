@@ -253,7 +253,7 @@ Player.prototype.onLoad = function(event) {
 
 Player.prototype.onSeek = function(event) {
   var currentTime = event.data.currentTime;
-  this.snapBack_(currenTime);
+  this.snapBack_(currentTime);
 };
 
 /**
