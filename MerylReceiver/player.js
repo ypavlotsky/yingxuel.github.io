@@ -53,7 +53,7 @@ var Player = function(mediaElement) {
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
   this.origSeek = this.mediaManager_.onSeek;
-  this.mediaManager_.onSeek = this.onSeek.bind(this);
+  //this.mediaManager_.onSeek = this.onSeek.bind(this);
   this.initReceiverStreamManager_();
 };
 
