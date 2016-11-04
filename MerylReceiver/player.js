@@ -254,6 +254,7 @@ Player.prototype.onLoad = function(event) {
 Player.prototype.onSeek = function(event) {
   var currentTime = event.data.currentTime;
   this.snapback_(currentTime);
+  this.broadcastStatus(false, event.data.requestId);
 };
 
 /**
