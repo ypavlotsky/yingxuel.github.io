@@ -4,6 +4,7 @@
  * Entry point for the sample video player which uses media element for
  * rendering video streams.
  *
+ * @this {Player}
  * @param {!HTMLMediaElement} mediaElement for video rendering.
  */
 var Player = function(mediaElement) {
@@ -51,13 +52,15 @@ var Player = function(mediaElement) {
 
   this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
   this.mediaManager_.onLoad = this.onLoad.bind(this);
-  //this.mediaManager_.customizedStatusCallback = this.customizedStatusCallback_.bind(this);
-  //this.mediaManager_.onGetStatus = this.onGetStatus_.bind(this);
-
+  this.origSeek = this.mediaManager_.onSeek;
+  this.mediaManager_.onSeek = this.onSeek.bind(this);
   this.initReceiverStreamManager_();
 };
 
-
+/**
+ * Initializes receiver stream manager and adds callbacks.
+ * @private
+ */
 Player.prototype.initReceiverStreamManager_ = function() {
   var self = this;
   this.receiverStreamManager_ =
@@ -96,7 +99,6 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         console.log("Cuepoints changed: ");
         console.log(event.getStreamData());
-        self.broadcast_('cuepoints changed ' + event.getStreamData().cuepoints);
       },
       false);
   this.receiverStreamManager_.addEventListener(
@@ -144,7 +146,7 @@ Player.prototype.initReceiverStreamManager_ = function() {
       google.ima.cast.api.StreamEvent.Type.AD_BREAK_ENDED,
       function(event) {
         self.adIsPlaying_ = false;
-        document.getElementById('ad-ui').style.display = 'none'; 
+        document.getElementById('ad-ui').style.display = 'none';
         self.broadcast_('ad_break_ended');
         if (self.seekToTimeAfterAdBreak_ > 0) {
           self.seek_(self.seekToTimeAfterAdBreak_);
@@ -157,22 +159,35 @@ Player.prototype.initReceiverStreamManager_ = function() {
       function(event) {
         var adData = self.receiverStreamManager_.getCurrentAdData();
         console.log(adData);
-        document.getElementById('ad-position').innerHTML
-          = adData.adPosition;
-        document.getElementById('total-ads').innerHTML
-          = adData.totalAds;
-        document.getElementById('time-value').innerHTML
-          = Math.ceil(parseFloat(adData.duration)
+        document.getElementById('ad-position').innerHTML =
+          adData.adPosition;
+        document.getElementById('total-ads').innerHTML =
+          adData.totalAds;
+        document.getElementById('time-value').innerHTML =
+          Math.ceil(parseFloat(adData.duration)
             - parseFloat(adData.currentTime));
       },
       false);
 };
 
+
+/**
+ * Gets content time for the stream.
+ * @returns {number} The content time.
+ * @private
+ */
 Player.prototype.getContentTime_ = function() {
-  return this.receiverStreamManager_.contentTimeForStreamTime(this.mediaElement_.currentTime);
-}
+  return this.receiverStreamManager_
+      .contentTimeForStreamTime(this.mediaElement_.currentTime);
+};
 
 
+/**
+ * Sends event ping for testing.
+ * @param {!string} event Event pinged.
+ * @param {number} number The ad number.
+ * @private
+ */
 Player.prototype.sendPingForTesting_ = function(event, number) {
   var testingPing = 'http://www.example.com/' + event + '@?num='
       + number + 'ld';
@@ -185,7 +200,7 @@ Player.prototype.sendPingForTesting_ = function(event, number) {
 
 /**
  * Sends messages to all connected sender apps.
- * @param {!String} message Message to be sent to senders.
+ * @param {!string} message Message to be sent to senders.
  * @private
  */
 Player.prototype.broadcast_ = function(message) {
@@ -217,6 +232,7 @@ Player.prototype.onSenderDisconnected = function(event) {
   }
 };
 
+
 /**
  * Called when we receive a LOAD message from the sender.
  * @param {!cast.receiver.MediaManager.Event} event The load event.
@@ -225,42 +241,25 @@ Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
   this.startTime_ = imaRequestData.startTime;
   if (imaRequestData.assetKey) {
-    this.streamRequest = new google.ima.cast.api.LiveStreamRequest(imaRequestData);
+    this.streamRequest =
+      new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
-    this.streamRequest = new google.ima.cast.api.VODStreamRequest(imaRequestData);
+    this.streamRequest =
+      new google.ima.cast.api.VODStreamRequest(imaRequestData);
   }
   this.receiverStreamManager_.requestStream(this.streamRequest);
-  document.getElementById('splash').style.display = 'none'; 
-  /*var host = new cast.player.api.Host({
-    'url': 'https://dai.google.com/ondemand/hls/content/19823/vid/ima-test/CHS/streams/436ef975-de92-4fa4-b8e1-80e813e70252/master.m3u8',
-    'mediaElement': this.mediaElement_
-  });
-  this.castPlayer_ = new cast.player.api.Player(host);
-  this.castPlayer_.load(
-    cast.player.api.CreateHlsStreamingProtocol(host));*/
+  document.getElementById('splash').style.display = 'none';
 };
 
-Player.prototype.customizedStatusCallback_ = function(mediaStatus) {
-  var contentTime = this.receiverStreamManager_
-    .contentTimeForStreamTime(this.mediaElement_.currentTime);
-  
-  mediaStatus.customData = { 'contentTime': contentTime };
-  return mediaStatus;
+Player.prototype.onSeek = function(event) {
+  const currentTime = event.data.currentTime;
+  this.snapBack_(currenTime);
 };
-
-Player.prototype.onGetStatus_ = function(event) {
-  var contentTime = this.receiverStreamManager_
-    .contentTimeForStreamTime(this.mediaElement_.currentTime);
-  
-  console.log("Content Time: " + contentTime);
-  this.mediaManager.sendStatus(event.senderId, event.data.requestId, true, { 'contentTime': contentTime});
-}
-
 
 /**
  * Loads stitched ads+content stream.
  * @param {!string} url of the stream.
- */
+( */
 Player.prototype.onStreamDataReceived = function(url) {
   var self = this;
   var host = new cast.player.api.Host({
@@ -282,7 +281,7 @@ Player.prototype.onStreamDataReceived = function(url) {
 
 /**
  * Bookmarks content so stream will return to this location if revisited.
- * @param {number} time The time stream will return to in seconds.
+ * @private
  */
 Player.prototype.bookmark_ = function() {
   this.broadcast_('Current Time: ' + this.mediaElement_.currentTime);
@@ -294,6 +293,7 @@ Player.prototype.bookmark_ = function() {
 /**
  * Seeks player to location.
  * @param {number} time The time to seek to in seconds.
+ * @private
  */
 Player.prototype.seek_ = function(time) {
   if (this.adIsPlaying_) {
@@ -307,9 +307,10 @@ Player.prototype.seek_ = function(time) {
  * Seeks player to location and plays last ad break if it has not been
  * seen already.
  * @param {number} time The time to seek to in seconds.
+ * @private
  */
 Player.prototype.snapback_ = function(time) {
-  var previousCuepoint = 
+  var previousCuepoint =
     this.receiverStreamManager_.previousCuePointForStreamTime(time);
   console.log(previousCuepoint);
   var played = previousCuepoint.played;
