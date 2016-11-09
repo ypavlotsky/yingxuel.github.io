@@ -241,9 +241,11 @@ Player.prototype.onLoad = function(event) {
   var imaRequestData = event.data.media.customData;
   this.startTime_ = imaRequestData.startTime;
   if (imaRequestData.assetKey) {
+    console.log('Starting Live Stream ' + imaRequestData);
     this.streamRequest =
       new google.ima.cast.api.LiveStreamRequest(imaRequestData);
   } else if (imaRequestData.contentSourceId) {
+    console.log('Starting VOD Stream' + imaRequestData);
     this.streamRequest =
       new google.ima.cast.api.VODStreamRequest(imaRequestData);
   }
